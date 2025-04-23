@@ -29,4 +29,5 @@ defmodule StorageCombinators.PassThrough.Impl do
       inner = StorageCombinators.Storage.delete(inner, ref)
       Impl.pass_through(inner)
     end
+  end
 end

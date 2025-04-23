@@ -23,4 +23,5 @@ defmodule StorageCombinators.MapStore.Impl do
       inner = Map.delete(map, ref)
       Impl.map_store(inner)
     end
+  end
 end
