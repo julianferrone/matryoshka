@@ -9,6 +9,8 @@ defmodule StorageCombinators.MapStore.Impl do
   def map_store(), do: map_store(Map.new())
   def map_store(map), do: %__MODULE__{map: map}
 
+  alias __MODULE__
+
   defimpl StorageCombinators.Storage do
     def get(%Impl{map: map}, ref) do
       Map.get(map, ref)

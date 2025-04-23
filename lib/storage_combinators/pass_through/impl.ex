@@ -8,12 +8,15 @@ defmodule StorageCombinators.PassThrough.Impl do
   @type impl_storage :: any()
 
   @type t :: %__MODULE__{
-    inner: impl_storage
-  }
+          inner: impl_storage
+        }
 
-  def pass_through(storage) do
+  def pass_through(storage) when is_struct(storage) do
+    Protocol.assert_impl!(StorageCombinators.Storage, storage.__struct__)
     %__MODULE__{inner: storage}
   end
+
+  alias __MODULE__
 
   defimpl StorageCombinators.Storage do
     def get(%Impl{inner: inner}, ref) do
