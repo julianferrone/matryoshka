@@ -11,7 +11,7 @@ defmodule StorageCombinators.PassThrough.Impl do
     inner: impl_storage
   }
 
-  def PassThrough(storage) do
+  def pass_through(storage) do
     %__MODULE__{inner: storage}
   end
 end
@@ -25,11 +25,11 @@ defimpl StorageCombinators.Storage, for: StorageCombinators.PassThrough.Impl do
 
   def put(%Impl{inner: inner}, ref, value) do
     inner = StorageCombinators.Storage.put(inner, ref, value)
-    Impl.PassThrough(inner)
+    Impl.pass_through(inner)
   end
 
   def delete(%Impl{inner: inner}, ref) do
     inner = StorageCombinators.Storage.delete(inner, ref)
-    Impl.PassThrough(inner)
+    Impl.pass_through(inner)
   end
 end
