@@ -1,4 +1,4 @@
-defmodule StorageCombinators.Store do
+defmodule StorageCombinators.Client do
   def start_link(server, default) when is_list(default) do
     GenServer.start_link(server, default)
   end
@@ -19,3 +19,4 @@ defmodule StorageCombinators.Store do
     GenServer.cast(server, {:delete, ref})
   end
 end
+I

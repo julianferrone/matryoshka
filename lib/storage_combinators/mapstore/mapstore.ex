@@ -1,14 +1,14 @@
 defmodule StorageCombinators.MapStore do
-  alias StorageCombinators.Store
-  @server StorageCombinators.MapStore.Server
+  alias StorageCombinators.Client
+  @server StorageCombinators.MapClient.Server
 
-  def start_link(default) when is_list(default), do: Store.start_link(@server, default)
+  def start_link(default) when is_list(default), do: Client.start_link(@server, default)
 
-  def get(ref), do: Store.get(@server, ref)
+  def get(ref), do: Client.get(@server, ref)
 
-  def put(ref, value), do: Store.put(@server, ref, value)
+  def put(ref, value), do: Client.put(@server, ref, value)
 
-  def patch(ref, value), do: Store.patch(@server, ref, value)
+  def patch(ref, value), do: Client.patch(@server, ref, value)
 
-  def delete(ref), do: Store.delete(@server, ref)
+  def delete(ref), do: Client.delete(@server, ref)
 end
