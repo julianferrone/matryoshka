@@ -8,22 +8,19 @@ defmodule StorageCombinators.MapStore.Impl do
 
   def map_store(), do: map_store(Map.new())
   def map_store(map), do: %__MODULE__{map: map}
-end
 
-defimpl StorageCombinators.Storage, for: StorageCombinators.MapStore.Impl do
-  alias StorageCombinators.MapStore.Impl
+  defimpl StorageCombinators.Storage do
+    def get(%Impl{map: map}, ref) do
+      Map.get(map, ref)
+    end
 
-  def get(%Impl{map: map}, ref) do
-    Map.get(map, ref)
-  end
+    def put(%Impl{map: map}, ref, value) do
+      inner = Map.put(map, ref, value)
+      Impl.map_store(inner)
+    end
 
-  def put(%Impl{map: map}, ref, value) do
-    inner = Map.put(map, ref, value)
-    Impl.map_store(inner)
-  end
-
-  def delete(%Impl{map: map}, ref) do
-    inner = Map.delete(map, ref)
-    Impl.map_store(inner)
-  end
+    def delete(%Impl{map: map}, ref) do
+      inner = Map.delete(map, ref)
+      Impl.map_store(inner)
+    end
 end
