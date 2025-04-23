@@ -1,4 +1,4 @@
-defmodule StorageCombinators.Passthrough.Impl do
+defmodule StorageCombinators.PassThrough.Impl do
   @enforce_keys [:inner]
   defstruct [:inner]
 
@@ -11,13 +11,13 @@ defmodule StorageCombinators.Passthrough.Impl do
     inner: impl_storage
   }
 
-  def passthrough(storage) do
+  def PassThrough(storage) do
     %__MODULE__{inner: storage}
   end
 end
 
-defimpl StorageCombinators.Storage, for: StorageCombinators.Passthrough.Impl do
-  alias StorageCombinators.Passthrough.Impl
+defimpl StorageCombinators.Storage, for: StorageCombinators.PassThrough.Impl do
+  alias StorageCombinators.PassThrough.Impl
 
   def get(%Impl{inner: inner}, ref) do
     StorageCombinators.Storage.get(inner, ref)
@@ -25,11 +25,11 @@ defimpl StorageCombinators.Storage, for: StorageCombinators.Passthrough.Impl do
 
   def put(%Impl{inner: inner}, ref, value) do
     inner = StorageCombinators.Storage.put(inner, ref, value)
-    Impl.passthrough(inner)
+    Impl.PassThrough(inner)
   end
 
   def delete(%Impl{inner: inner}, ref) do
     inner = StorageCombinators.Storage.delete(inner, ref)
-    Impl.passthrough(inner)
+    Impl.PassThrough(inner)
   end
 end

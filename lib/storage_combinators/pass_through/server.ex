@@ -1,4 +1,4 @@
-defmodule StorageCombinators.Passthrough.Server do
+defmodule StorageCombinators.PassThrough.Server do
   use GenServer
 
   @impl true

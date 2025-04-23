@@ -1,6 +1,6 @@
-defmodule StorageCombinators.Passthrough.Client do
+defmodule StorageCombinators.PassThrough.Client do
   alias StorageCombinators.Client, as: ScClient
-  @server StorageCombinators.Passthrough.Server
+  @server StorageCombinators.PassThrough.Server
 
   def start_link(default) when is_list(default), do: ScClient.start_link(@server, default)
 
