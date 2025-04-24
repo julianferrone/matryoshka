@@ -16,6 +16,10 @@ defmodule StorageCombinators.Impl.MapStore do
       {store, Map.fetch(map, ref)}
     end
 
+    def get(%MapStore{map: map} = store, ref) do
+      {store, Map.get(map, ref)}
+    end
+
     def put(%MapStore{map: map}, ref, value) do
       inner = Map.put(map, ref, value)
       MapStore.map_store(inner)

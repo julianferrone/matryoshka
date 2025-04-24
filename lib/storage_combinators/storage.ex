@@ -7,6 +7,9 @@ defprotocol StorageCombinators.Storage do
   @spec fetch(store(), Reference) :: {store(), :error | {:ok, value()}}
   def fetch(store, ref)
 
+  @spec get(store(), Reference) :: {store(), value()}
+  def get(store, ref)
+
   @spec put(store(), Reference, value()) :: store()
   def put(store, ref, value)
 

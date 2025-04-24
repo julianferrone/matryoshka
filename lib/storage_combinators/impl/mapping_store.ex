@@ -1,4 +1,6 @@
 defmodule StorageCombinators.Impl.MappingStore do
+  import StorageCombinators.StorageCombinators, only: [is_storage!: 1]
+
   @enforce_keys [:inner]
   defstruct [
     :inner,
@@ -22,6 +24,7 @@ defmodule StorageCombinators.Impl.MappingStore do
   @identity &Function.identity/1
 
   def mapping_store(inner, opts \\ []) do
+    is_storage!(inner)
     map_ref = Keyword.get(opts, :map_ref, @identity)
     map_retrieved = Keyword.get(opts, :map_retrieved, @identity)
     map_to_store = Keyword.get(opts, :map_to_store, @identity)
@@ -37,18 +40,22 @@ defmodule StorageCombinators.Impl.MappingStore do
   alias __MODULE__
 
   defimpl StorageCombinators.Storage do
-    @spec get(MappingStore.t(), StorageCombinators.Reference) :: any()
+    @spec fetch(MappingStore.t(), StorageCombinators.Reference) :: any()
+    def fetch(
+          %MappingStore{inner: inner, map_ref: map_ref, map_retrieved: map_retrieved} = store,
+          ref
+        ) do
+      {inner_new, value} = StorageCombinators.Storage.fetch(inner, map_ref.(ref))
+      {%{store|inner: inner_new}, map_retrieved.(value)}
+    end
+
     def get(
           %MappingStore{inner: inner, map_ref: map_ref, map_retrieved: map_retrieved} = store,
           ref
         ) do
-      ref = map_ref.(ref)
+      {inner_new, value} = StorageCombinators.Storage.get(inner, map_ref.(ref))
 
-      value =
-        StorageCombinators.Storage.get(inner, ref)
-        |> map_retrieved.()
-
-      {store, value}
+      {%{store|inner: inner_new}, map_retrieved.(value)}
     end
 
     def put(
@@ -56,13 +63,13 @@ defmodule StorageCombinators.Impl.MappingStore do
           ref,
           value
         ) do
-      inner = StorageCombinators.Storage.put(inner, map_ref.(ref), map_to_store.(value))
-      %{store | inner: inner}
+      inner_new = StorageCombinators.Storage.put(inner, map_ref.(ref), map_to_store.(value))
+      %{store | inner: inner_new}
     end
 
     def delete(%MappingStore{inner: inner, map_ref: map_ref} = store, ref) do
-      inner = StorageCombinators.Storage.delete(inner, map_ref.(ref))
-      %{store | inner: inner}
+      inner_new = StorageCombinators.Storage.delete(inner, map_ref.(ref))
+      %{store | inner: inner_new}
     end
   end
 end

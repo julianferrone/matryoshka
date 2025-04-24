@@ -22,9 +22,17 @@ defmodule StorageCombinators.Impl.LoggingStore do
   alias __MODULE__
 
   defimpl StorageCombinators.Storage do
+    def fetch(%LoggingStore{inner: inner} = store, ref) do
+      {inner, value} = StorageCombinators.Storage.fetch(inner, ref)
+      Logger.info("FETCH #{inspect(ref)} => #{inspect(value)}")
+      store = %{store | inner: inner}
+      {store, value}
+    end
+
     def get(%LoggingStore{inner: inner} = store, ref) do
-      value = StorageCombinators.Storage.get(inner, ref)
+      {inner, value} = StorageCombinators.Storage.get(inner, ref)
       Logger.info("GET #{inspect(ref)} => #{inspect(value)}")
+      store = %{store | inner: inner}
       {store, value}
     end
 

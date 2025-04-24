@@ -25,6 +25,28 @@ defmodule StorageCombinators.Impl.CachingStore do
   alias __MODULE__
 
   defimpl Storage do
+    def fetch(%CachingStore{main_store: main_store, fast_store: fast_store} = store, ref) do
+      {new_fast_store, val_fast} = Storage.fetch(fast_store, ref)
+
+      case val_fast do
+        {:ok, _value} ->
+          new_store = %{store|fast_store: new_fast_store}
+          {new_store, val_fast}
+
+        :error ->
+          {new_main_store, val_main} = Storage.fetch(main_store, ref)
+
+          case val_main do
+            {:ok, _value} ->
+              new_store = CachingStore.caching_store(new_main_store, new_fast_store)
+              {new_store, val_main}
+
+            :error ->
+              {store, :error}
+          end
+      end
+    end
+
     def get(%CachingStore{main_store: main_store, fast_store: fast_store}, ref) do
       case Storage.get(fast_store, ref) do
         {fast_store, nil} ->
