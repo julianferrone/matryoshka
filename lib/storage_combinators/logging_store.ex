@@ -1,4 +1,4 @@
-defmodule StorageCombinators.LoggingStore.Impl do
+defmodule StorageCombinators.LoggingStore do
   import StorageCombinators.StorageCombinators, only: [is_storage!: 1]
 
   @enforce_keys [:inner]
@@ -22,22 +22,22 @@ defmodule StorageCombinators.LoggingStore.Impl do
   alias __MODULE__
 
   defimpl StorageCombinators.Storage do
-    def get(%Impl{inner: inner}, ref) do
+    def get(%LoggingStore{inner: inner}, ref) do
       value = StorageCombinators.Storage.get(inner, ref)
       Logger.info("GET #{inspect(ref)} => #{inspect(value)}")
       value
     end
 
-    def put(%Impl{inner: inner}, ref, value) do
+    def put(%LoggingStore{inner: inner}, ref, value) do
       Logger.info("PUT #{inspect(ref)} <= #{inspect(value)}")
       inner = StorageCombinators.Storage.put(inner, ref, value)
-      Impl.logging_store(inner)
+      LoggingStore.logging_store(inner)
     end
 
-    def delete(%Impl{inner: inner}, ref) do
+    def delete(%LoggingStore{inner: inner}, ref) do
       Logger.info("DELETE #{inspect(ref)}")
       inner = StorageCombinators.Storage.delete(inner, ref)
-      Impl.logging_store(inner)
+      LoggingStore.logging_store(inner)
     end
   end
 end
