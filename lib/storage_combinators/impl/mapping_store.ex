@@ -1,4 +1,4 @@
-defmodule StorageCombinators.MappingStore do
+defmodule StorageCombinators.Impl.MappingStore do
   @enforce_keys [:inner]
   defstruct [
     :inner,

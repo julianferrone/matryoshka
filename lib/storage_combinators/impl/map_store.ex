@@ -1,4 +1,4 @@
-defmodule StorageCombinators.MapStore.Impl do
+defmodule StorageCombinators.Impl.MapStore do
   @enforce_keys [:map]
   defstruct [:map]
 
@@ -12,18 +12,18 @@ defmodule StorageCombinators.MapStore.Impl do
   alias __MODULE__
 
   defimpl StorageCombinators.Storage do
-    def get(%Impl{map: map}, ref) do
+    def get(%MapStore{map: map}, ref) do
       Map.get(map, ref)
     end
 
-    def put(%Impl{map: map}, ref, value) do
+    def put(%MapStore{map: map}, ref, value) do
       inner = Map.put(map, ref, value)
-      Impl.map_store(inner)
+      MapStore.map_store(inner)
     end
 
-    def delete(%Impl{map: map}, ref) do
+    def delete(%MapStore{map: map}, ref) do
       inner = Map.delete(map, ref)
-      Impl.map_store(inner)
+      MapStore.map_store(inner)
     end
   end
 end

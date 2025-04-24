@@ -1,4 +1,4 @@
-defmodule StorageCombinators.LoggingStore do
+defmodule StorageCombinators.Impl.LoggingStore do
   import StorageCombinators.StorageCombinators, only: [is_storage!: 1]
 
   @enforce_keys [:inner]
