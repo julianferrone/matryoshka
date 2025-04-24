@@ -38,22 +38,30 @@ defmodule StorageCombinators.Impl.MappingStore do
 
   defimpl StorageCombinators.Storage do
     @spec get(MappingStore.t(), StorageCombinators.Reference) :: any()
-    def get(%MappingStore{inner: inner, map_ref: map_ref, map_retrieved: map_retrieved}, ref) do
+    def get(
+          %MappingStore{inner: inner, map_ref: map_ref, map_retrieved: map_retrieved} = store,
+          ref
+        ) do
       ref = map_ref.(ref)
-      value = StorageCombinators.Storage.get(inner, ref)
-      map_retrieved.(value)
+
+      value =
+        StorageCombinators.Storage.get(inner, ref)
+        |> map_retrieved.()
+
+      {store, value}
     end
 
-    def put(%MappingStore{inner: inner, map_ref: map_ref, map_to_store: map_to_store} = store, ref, value) do
-      ref = map_ref.(ref)
-      value = map_to_store.(value)
-      inner = StorageCombinators.Storage.put(inner, ref, value)
+    def put(
+          %MappingStore{inner: inner, map_ref: map_ref, map_to_store: map_to_store} = store,
+          ref,
+          value
+        ) do
+      inner = StorageCombinators.Storage.put(inner, map_ref.(ref), map_to_store.(value))
       %{store | inner: inner}
     end
 
     def delete(%MappingStore{inner: inner, map_ref: map_ref} = store, ref) do
-      ref = map_ref.(ref)
-      inner = StorageCombinators.Storage.delete(inner, ref)
+      inner = StorageCombinators.Storage.delete(inner, map_ref.(ref))
       %{store | inner: inner}
     end
   end

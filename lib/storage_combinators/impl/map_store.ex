@@ -12,8 +12,8 @@ defmodule StorageCombinators.Impl.MapStore do
   alias __MODULE__
 
   defimpl StorageCombinators.Storage do
-    def get(%MapStore{map: map}, ref) do
-      Map.get(map, ref)
+    def get(%MapStore{map: map} = store, ref) do
+      {store, Map.get(map, ref)}
     end
 
     def put(%MapStore{map: map}, ref, value) do

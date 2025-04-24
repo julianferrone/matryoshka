@@ -21,8 +21,8 @@ defmodule StorageCombinators.Impl.PassThrough do
   alias __MODULE__
 
   defimpl StorageCombinators.Storage do
-    def get(%PassThrough{inner: inner}, ref) do
-      StorageCombinators.Storage.get(inner, ref)
+    def get(%PassThrough{inner: inner} = store, ref) do
+      {store, StorageCombinators.Storage.get(inner, ref)}
     end
 
     def put(%PassThrough{inner: inner}, ref, value) do

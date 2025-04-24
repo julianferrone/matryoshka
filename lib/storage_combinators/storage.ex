@@ -4,7 +4,7 @@ defprotocol StorageCombinators.Storage do
 
   alias StorageCombinators.Reference
 
-  @spec get(store(), Reference) :: value()
+  @spec get(store(), Reference) :: {store(), value()}
   def get(store, ref)
 
   @spec put(store(), Reference, value()) :: store()
