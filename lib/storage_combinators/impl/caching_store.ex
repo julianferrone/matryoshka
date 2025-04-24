@@ -26,19 +26,19 @@ defmodule StorageCombinators.Impl.CachingStore do
 
   defimpl Storage do
     def fetch(%CachingStore{main_store: main_store, fast_store: fast_store} = store, ref) do
-      {new_fast_store, val_fast} = Storage.fetch(fast_store, ref)
+      {fast_store_new, val_fast} = Storage.fetch(fast_store, ref)
 
       case val_fast do
         {:ok, _value} ->
-          new_store = %{store|fast_store: new_fast_store}
+          new_store = %{store | fast_store: fast_store_new}
           {new_store, val_fast}
 
         :error ->
-          {new_main_store, val_main} = Storage.fetch(main_store, ref)
+          {main_store_new, val_main} = Storage.fetch(main_store, ref)
 
           case val_main do
             {:ok, _value} ->
-              new_store = CachingStore.caching_store(new_main_store, new_fast_store)
+              new_store = CachingStore.caching_store(main_store_new, fast_store_new)
               {new_store, val_main}
 
             :error ->
@@ -47,20 +47,27 @@ defmodule StorageCombinators.Impl.CachingStore do
       end
     end
 
-    def get(%CachingStore{main_store: main_store, fast_store: fast_store}, ref) do
-      case Storage.get(fast_store, ref) do
-        {fast_store, nil} ->
-          case Storage.get(main_store, ref) do
-            {main_store, nil} ->
-              {CachingStore.caching_store(main_store, fast_store), nil}
+    def get(%CachingStore{main_store: main_store, fast_store: fast_store} = store, ref) do
+      {fast_store_new, val_fast} = Storage.get(fast_store, ref)
 
-            {main_store, value} ->
-              fast_store = Storage.put(fast_store, ref, value)
-              {CachingStore.caching_store(main_store, fast_store), value}
+      case val_fast do
+        nil ->
+          {main_store_new, val_main} = Storage.get(main_store, ref)
+
+          case val_main do
+            nil ->
+              store_new = CachingStore.caching_store(main_store_new, fast_store_new)
+              {store_new, nil}
+
+            value ->
+              fast_store_new = Storage.put(fast_store_new, ref, value)
+              store_new = CachingStore.caching_store(main_store_new, fast_store_new)
+              {store_new, value}
           end
 
-        {fast_store, value} ->
-          {CachingStore.caching_store(main_store, fast_store), value}
+        value ->
+          store_new = %{store | fast_store: fast_store_new}
+          {store_new, value}
       end
     end
 
