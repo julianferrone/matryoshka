@@ -1,4 +1,6 @@
 defmodule StorageCombinators.PassThrough.Impl do
+  import StorageCombinators.StorageCombinators, only: [is_storage!: 1]
+
   @enforce_keys [:inner]
   defstruct [:inner]
 
@@ -12,7 +14,7 @@ defmodule StorageCombinators.PassThrough.Impl do
         }
 
   def pass_through(storage) when is_struct(storage) do
-    Protocol.assert_impl!(StorageCombinators.Storage, storage.__struct__)
+    is_storage!(storage)
     %__MODULE__{inner: storage}
   end
 
