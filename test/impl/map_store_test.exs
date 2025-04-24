@@ -9,7 +9,7 @@ defmodule StorageCombinatorsTest.Impl.MapStoreTest do
     store = MapStore.map_store()
 
     # Act
-    {_new_store, value} = Storage.get(store, 1)
+    {_new_store, value} = Storage.Get.get(store, 1)
 
     # Assert
     assert value == nil
@@ -20,7 +20,7 @@ defmodule StorageCombinatorsTest.Impl.MapStoreTest do
     store = MapStore.map_store()
 
     # Act
-    {new_store, _value} = Storage.get(store, 1)
+    {new_store, _value} = Storage.Get.get(store, 1)
 
     # Assert
     assert store == new_store
@@ -32,7 +32,7 @@ defmodule StorageCombinatorsTest.Impl.MapStoreTest do
 
     # Act
     store = Storage.put(store, 1, :one)
-    {_store, value} = Storage.get(store, 1)
+    {_store, value} = Storage.Get.get(store, 1)
 
     assert :one == value
   end
