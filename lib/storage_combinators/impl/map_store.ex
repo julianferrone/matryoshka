@@ -3,7 +3,7 @@ defmodule StorageCombinators.Impl.MapStore do
   defstruct [:map]
 
   @type t :: %__MODULE__{
-          map: Map
+          map: Map.t()
         }
 
   def map_store(), do: map_store(Map.new())
