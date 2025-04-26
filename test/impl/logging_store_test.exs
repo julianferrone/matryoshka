@@ -1,5 +1,5 @@
 defmodule StorageCombinatorsTest.LoggingStoreTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   import ExUnit.CaptureLog
   require Logger
