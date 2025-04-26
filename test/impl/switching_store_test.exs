@@ -68,12 +68,17 @@ defmodule StorageCombinatorsTest.Impl.SwitchingStoreTest do
   end
 
   test "Cannot get value from SwitchingStore if reference is too short", %{store: store} do
-    {new_store, value} = Storage.get(store, "one")
+    {_new_store, value} = Storage.get(store, "one")
     assert value == nil
   end
 
   test "Cannot fetch value from SwitchingStore if reference is too short", %{store: store} do
-    {new_store, value} = Storage.fetch(store, "one")
+    {_new_store, value} = Storage.fetch(store, "one")
     assert value == :error
+  end
+
+  test "Cannot put value into SwitchingStore if reference is too short", %{store: store} do
+    new_store = Storage.put(store, "one", :one)
+    assert new_store == store
   end
 end

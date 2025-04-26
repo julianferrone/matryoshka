@@ -29,62 +29,66 @@ defmodule StorageCombinators.Impl.SwitchingStore do
 
   def split_reference(ref) do
     [path_head | path_tail] = Reference.path_segments(ref)
-    path_tail = Enum.join(path_tail, "/")
-    {path_head, path_tail}
+
+    case path_tail do
+      [] -> {:error, "Reference path '#{ref}' too short"}
+      path -> {:ok, path_head, Enum.join(path, "/")}
+    end
   end
 
   def choose_store(%SwitchingStore{path_store_map: path_store_map}, ref) do
-    {first, _rest} = split_reference(ref)
-    Map.fetch(path_store_map, first)
+    case split_reference(ref) do
+      {:ok, first, _rest} -> Map.fetch(path_store_map, first)
+      error -> error
+    end
   end
-
 
   defimpl StorageCombinators.Storage do
     def fetch(%SwitchingStore{path_store_map: path_store_map} = store, ref) do
-      with {:ok, sub_store} <- SwitchingStore.choose_store(store, ref) do
-        {first, rest_ref} = SwitchingStore.split_reference(ref)
+      with {:ok, sub_store} <- SwitchingStore.choose_store(store, ref),
+           {:ok, first, rest_ref} = SwitchingStore.split_reference(ref) do
         {new_sub_store, value} = StorageCombinators.Storage.fetch(sub_store, rest_ref)
         new_path_store_map = Map.put(path_store_map, first, new_sub_store)
         new_store = SwitchingStore.switching_store(new_path_store_map)
         {new_store, value}
       else
-        :error -> {store, :error}
+        _ -> {store, :error}
       end
     end
 
     def get(%SwitchingStore{path_store_map: path_store_map} = store, ref) do
-      with {:ok, sub_store} <- SwitchingStore.choose_store(store, ref) do
-        {first, rest_ref} = SwitchingStore.split_reference(ref)
+      with {:ok, sub_store} <- SwitchingStore.choose_store(store, ref),
+           {:ok, first, rest_ref} = SwitchingStore.split_reference(ref) do
         {new_sub_store, value} = StorageCombinators.Storage.get(sub_store, rest_ref)
         new_path_store_map = Map.put(path_store_map, first, new_sub_store)
         new_store = SwitchingStore.switching_store(new_path_store_map)
         {new_store, value}
       else
-        :error -> {store, :error}
+        _ -> {store, nil}
       end
     end
 
     def put(%SwitchingStore{path_store_map: path_store_map} = store, ref, value) do
-      with {:ok, sub_store} <- SwitchingStore.choose_store(store, ref) do
-        {first, rest_ref} = SwitchingStore.split_reference(ref)
+      with {:ok, sub_store} <- SwitchingStore.choose_store(store, ref),
+           {:ok, first, rest_ref} = SwitchingStore.split_reference(ref) do
         new_sub_store = StorageCombinators.Storage.put(sub_store, rest_ref, value)
         new_path_store_map = Map.put(path_store_map, first, new_sub_store)
         new_store = SwitchingStore.switching_store(new_path_store_map)
         new_store
       else
-        :error -> store
+        _ -> store
       end
     end
 
     def delete(%SwitchingStore{path_store_map: path_store_map} = store, ref) do
-      with {:ok, sub_store} <- SwitchingStore.choose_store(store, ref) do
-        {first, rest_ref} = SwitchingStore.split_reference(ref)
+      with {:ok, sub_store} <- SwitchingStore.choose_store(store, ref),
+           {:ok, first, rest_ref} = SwitchingStore.split_reference(ref) do
         new_sub_store = StorageCombinators.Storage.delete(sub_store, rest_ref)
         new_path_store_map = Map.put(path_store_map, first, new_sub_store)
         new_store = SwitchingStore.switching_store(new_path_store_map)
         new_store
       else
-        :error -> store
+        _ -> store
       end
     end
   end
