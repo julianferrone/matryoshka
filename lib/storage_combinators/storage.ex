@@ -4,15 +4,36 @@ defprotocol StorageCombinators.Storage do
   @type store :: any
   @type value :: any
 
+  @doc """
+  Fetches the value for a specific `ref` in `store`.
+
+  If `store` contains the given `ref` then its value is returned in the shape
+  of `{:ok, value}`.
+  If `store` doesn't contain `ref`, `:error` is returned.
+  """
   @spec fetch(store(), Reference) :: {store(), :error | {:ok, value()}}
   def fetch(store, ref)
 
+  @doc """
+  Gets the value for a specific `ref` in `store`.
+
+  If `store` contains the given `ref` then its value `value` is returned.
+  If `store` doesn't contain `ref`, `nil` is returned.
+  """
   @spec get(store(), Reference) :: {store(), value()}
   def get(store, ref)
 
+  @doc """
+  Puts the given `value` under `ref` in `store`.
+  """
   @spec put(store(), Reference, value()) :: store()
   def put(store, ref, value)
 
+  @doc """
+  Deletes the entry in `store` for a specific `ref`.
+
+  If the `ref` does not exist, returns `store` unchanged.
+  """
   @spec delete(store(), Reference) :: store()
   def delete(store, ref)
 end
