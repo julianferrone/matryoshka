@@ -46,7 +46,16 @@ defmodule StorageCombinators.Impl.MappingStore do
           ref
         ) do
       {inner_new, value} = StorageCombinators.Storage.fetch(inner, map_ref.(ref))
-      {%{store|inner: inner_new}, map_retrieved.(value)}
+
+      store_new = %{store | inner: inner_new}
+
+      value_new =
+        case value do
+          :error -> :error
+          {:ok, value} -> {:ok, map_retrieved.(value)}
+        end
+
+      {store_new, value_new}
     end
 
     def get(
@@ -55,7 +64,15 @@ defmodule StorageCombinators.Impl.MappingStore do
         ) do
       {inner_new, value} = StorageCombinators.Storage.get(inner, map_ref.(ref))
 
-      {%{store|inner: inner_new}, map_retrieved.(value)}
+      store_new = %{store | inner: inner_new}
+
+      value_new =
+        case value do
+          nil -> nil
+          value -> map_retrieved.(value)
+        end
+
+      {store_new, value_new}
     end
 
     def put(
