@@ -36,7 +36,7 @@ defmodule StorageCombinators.Impl.CachingStore do
           new_store = %{store | fast_store: fast_store_new}
           {new_store, val_fast}
 
-        {:error, reason_fast} ->
+        {:error, _reason_fast} ->
           {main_store_new, val_main} = Storage.fetch(main_store, ref)
 
           case val_main do
@@ -45,8 +45,8 @@ defmodule StorageCombinators.Impl.CachingStore do
               new_store = CachingStore.caching_store(main_store_new, fast_store_new)
               {new_store, val_main}
 
-            {:error, reason_main} ->
-              {store, {:error, reason_main}}
+            {:error, reason} ->
+              {store, {:error, reason}}
           end
       end
     end
