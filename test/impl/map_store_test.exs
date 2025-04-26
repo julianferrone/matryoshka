@@ -24,6 +24,22 @@ defmodule StorageCombinatorsTest.Impl.MapStoreTest do
     assert store == new_store
   end
 
+  test "Fetch on empty MapStore returns nil", %{store: store} do
+    # Act
+    {_new_store, value} = Storage.fetch(store, 1)
+
+    # Assert
+    assert value == :error
+  end
+
+  test "Fetch on empty MapStore doesn't change MapStore", %{store: store} do
+    # Act
+    {new_store, _value} = Storage.fetch(store, 1)
+
+    # Assert
+    assert store == new_store
+  end
+
   test "Putting an item into a MapStore then getting it returns the same value", %{store: store} do
     # Act
     store = Storage.put(store, 1, :one)
