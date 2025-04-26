@@ -58,12 +58,22 @@ defmodule StorageCombinatorsTest.Impl.SwitchingStoreTest do
     assert value == nil
   end
 
-  test "Cannot Fetch value from SwitchingStore after deleting", %{store: store} do
+  test "Cannot fetch value from SwitchingStore after deleting", %{store: store} do
     new_store = Storage.put(store, "one/item", :item)
     {new_store, value} = Storage.fetch(new_store, "one/item")
     assert value == {:ok, :item}
     new_store = Storage.delete(new_store, "one/item")
     {_new_store, value} = Storage.fetch(new_store, "one/item")
+    assert value == :error
+  end
+
+  test "Cannot get value from SwitchingStore if reference is too short", %{store: store} do
+    {new_store, value} = Storage.get(store, "one")
+    assert value == nil
+  end
+
+  test "Cannot fetch value from SwitchingStore if reference is too short", %{store: store} do
+    {new_store, value} = Storage.fetch(store, "one")
     assert value == :error
   end
 end
