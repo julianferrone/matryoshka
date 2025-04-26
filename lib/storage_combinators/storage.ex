@@ -9,9 +9,10 @@ defprotocol StorageCombinators.Storage do
 
   If `store` contains the given `ref` then its value is returned in the shape
   of `{:ok, value}`.
-  If `store` doesn't contain `ref`, `:error` is returned.
+  If `store` doesn't contain `ref`, then the reason why is returned in the shape
+  of `{:error, reason}`.
   """
-  @spec fetch(store(), Reference) :: {store(), :error | {:ok, value()}}
+  @spec fetch(store(), Reference) :: {store(), {:error, value()} | {:ok, value()}}
   def fetch(store, ref)
 
   @doc """
