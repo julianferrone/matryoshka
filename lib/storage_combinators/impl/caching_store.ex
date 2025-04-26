@@ -1,5 +1,6 @@
 defmodule StorageCombinators.Impl.CachingStore do
   alias StorageCombinators.Storage
+  import StorageCombinators.Impl.MapStore, only: [map_store: 0]
   import StorageCombinators.StorageCombinators, only: [is_storage!: 1]
 
   @enforce_keys [:main_store, :fast_store]
@@ -14,6 +15,8 @@ defmodule StorageCombinators.Impl.CachingStore do
           main_store: impl_storage(),
           fast_store: impl_storage()
         }
+
+  def caching_store(main_storage), do: caching_store(main_storage, map_store())
 
   def caching_store(main_storage, fast_storage)
       when is_struct(main_storage) and is_struct(fast_storage) do

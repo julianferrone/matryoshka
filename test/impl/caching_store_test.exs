@@ -7,7 +7,7 @@ defmodule StorageCombinatorsTest.Impl.CachingStoreTest do
 
   setup do
     [
-      empty: CachingStore.caching_store(MapStore.map_store(), MapStore.map_store()),
+      empty: MapStore.map_store() |> CachingStore.caching_store(),
       full:
         CachingStore.caching_store(
           MapStore.map_store(%{1 => :one, 2 => :two}),
