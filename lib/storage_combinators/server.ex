@@ -21,6 +21,12 @@ defmodule StorageCombinators.Server do
   end
 
   @impl true
+  def handle_call({:fetch, ref}, _from, store) do
+    {store, value} = Storage.fetch(store, ref)
+    {:reply, value, store}
+  end
+
+  @impl true
   def handle_cast({:put, ref, value}, store) do
     {:noreply, Storage.put(store, ref, value)}
   end
