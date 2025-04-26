@@ -49,7 +49,7 @@ defmodule StorageCombinatorsTest.Impl.CachingStoreTest do
     assert value == :three
   end
 
-  test "Get on CachingStore main store changes store", context do
+  test "Get on CachingStore—that has no value in fast store—changes store", context do
     store = context[:full]
     {new_store, _value} = Storage.get(store, 1)
     refute store == new_store
