@@ -1,20 +1,18 @@
-defmodule StorageCombinators.Reference do
-  @enforce_keys [:scheme, :path_components]
-  defstruct [:scheme, :path_components]
-
+defprotocol StorageCombinators.Reference do
   @doc """
-  Creates a Reference.
+  Splits a Reference into the list of underlying path components.
   """
-  def reference(scheme, path) do
-    path_components = String.split(path, "/")
-    %StorageCombinators.Reference{scheme: scheme, path_components: path_components}
+  def path_components(reference)
+end
+
+defimpl StorageCombinators.Reference, for: String do
+  def path_components(reference) do
+    String.split(reference, "/")
   end
+end
 
-  @doc """
-  Returns the full path of the URI as a string.
-  """
-  def path(%StorageCombinators.Reference{scheme: scheme, path_components: path_components}) do
-    path = Enum.join(path_components, "/")
-    "#{scheme}://#{path}"
+defimpl StorageCombinators.Reference, for: Atom do
+  def path_components(reference) do
+    [Atom.to_string(reference)]
   end
 end
