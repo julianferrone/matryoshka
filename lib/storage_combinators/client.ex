@@ -1,22 +1,29 @@
 defmodule StorageCombinators.Client do
-  def start_link(server, default) when is_list(default) do
-    GenServer.start_link(server, default)
+  @server StorageCombinators.Server
+
+  def start_link(default) do
+    @server.start_link(default)
   end
 
-  def get(server, ref) do
-    GenServer.call(server, {:get, ref})
+  def get(ref) do
+    GenServer.call(@server, {:get, ref})
   end
 
-  def put(server, ref, value) do
-    GenServer.cast(server, {:put, ref, value})
+  def fetch(ref) do
+    GenServer.call(@server, {:fetch, ref})
   end
 
-  def patch(server, ref, value) do
-    GenServer.cast(server, {:patch, ref, value})
+  def put(ref, value) do
+    GenServer.cast(@server, {:put, ref, value})
   end
 
-  def delete(server, ref) do
-    GenServer.cast(server, {:delete, ref})
+  def patch(ref, value) do
+    GenServer.cast(@server, {:patch, ref, value})
+  end
+
+  def delete(ref) do
+    GenServer.cast(@server, {:delete, ref})
   end
 end
+
 I
