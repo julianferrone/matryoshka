@@ -4,10 +4,11 @@ defmodule StorageCombinatorsTest.Impl.MapStoreTest do
   alias StorageCombinators.Impl.MapStore
   alias StorageCombinators.Storage
 
-  test "Get on empty MapStore returns nil" do
-    # Arrange
-    store = MapStore.map_store()
+  setup do
+    {:ok, store: MapStore.map_store()}
+  end
 
+  test "Get on empty MapStore returns nil", %{store: store} do
     # Act
     {_new_store, value} = Storage.get(store, 1)
 
@@ -15,10 +16,7 @@ defmodule StorageCombinatorsTest.Impl.MapStoreTest do
     assert value == nil
   end
 
-  test "Get on empty MapStore doesn't change MapStore" do
-    # Arrange
-    store = MapStore.map_store()
-
+  test "Get on empty MapStore doesn't change MapStore", %{store: store} do
     # Act
     {new_store, _value} = Storage.get(store, 1)
 
@@ -26,10 +24,7 @@ defmodule StorageCombinatorsTest.Impl.MapStoreTest do
     assert store == new_store
   end
 
-  test "Putting an item into a MapStore then getting it returns the same value" do
-    # Arrange
-    store = MapStore.map_store()
-
+  test "Putting an item into a MapStore then getting it returns the same value", %{store: store} do
     # Act
     store = Storage.put(store, 1, :one)
     {_store, value} = Storage.get(store, 1)
@@ -37,10 +32,7 @@ defmodule StorageCombinatorsTest.Impl.MapStoreTest do
     assert :one == value
   end
 
-  test "Deleting on an empty MapStore doesn't change the MapStore" do
-    # Arrange
-    store = MapStore.map_store()
-
+  test "Deleting on an empty MapStore doesn't change the MapStore", %{store: store} do
     # Act
     new_store = Storage.delete(store, 1)
 
@@ -48,10 +40,8 @@ defmodule StorageCombinatorsTest.Impl.MapStoreTest do
     assert store == new_store
   end
 
-  test "Adding an item to an empty MapStore, then deleting it immediately, returns the empty MapStore" do
-    # Arrange
-    store = MapStore.map_store()
-
+  test "Adding an item to an empty MapStore, then deleting it immediately, returns the empty MapStore",
+       %{store: store} do
     # Act
     store_one = Storage.put(store, 1, :one)
     store_two = Storage.delete(store_one, 1)
