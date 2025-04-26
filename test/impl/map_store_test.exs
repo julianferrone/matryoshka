@@ -29,7 +29,7 @@ defmodule StorageCombinatorsTest.Impl.MapStoreTest do
     {_new_store, value} = Storage.fetch(store, 1)
 
     # Assert
-    assert value == :error
+    assert value == {:error, {:no_ref, 1}}
   end
 
   test "Fetch on empty MapStore doesn't change MapStore", %{store: store} do

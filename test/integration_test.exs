@@ -15,7 +15,7 @@ defmodule StorageCombinatorsTest.IntegrationTest do
   end
 
   test "Client fetches :error from empty storage server" do
-    assert Client.fetch(1) == :error
+    assert Client.fetch(1) == {:error, {:no_ref, 1}}
   end
 
   test "Client puts and gets same item from storage server" do
@@ -39,6 +39,6 @@ defmodule StorageCombinatorsTest.IntegrationTest do
     Client.put(1, :one)
     assert Client.fetch(1) == {:ok, :one}
     Client.delete(1)
-    assert Client.fetch(1) == :error
+    assert Client.fetch(1) == {:error, {:no_ref, 1}}
   end
 end

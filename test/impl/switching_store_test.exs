@@ -27,7 +27,7 @@ defmodule StorageCombinatorsTest.Impl.SwitchingStoreTest do
 
   test "Fetch on SwitchingStore with empty substore returns :error", %{store: store} do
     {_new_store, value} = Storage.fetch(store, "one/test")
-    assert value == :error
+    assert value == {:error, {:no_ref, "test"}}
   end
 
   test "Fetch on SwitchingStore with value in substore returns value", %{store: store} do
@@ -64,7 +64,7 @@ defmodule StorageCombinatorsTest.Impl.SwitchingStoreTest do
     assert value == {:ok, :item}
     new_store = Storage.delete(new_store, "one/item")
     {_new_store, value} = Storage.fetch(new_store, "one/item")
-    assert value == :error
+    assert value == {:error, {:no_ref, "item"}}
   end
 
   test "Cannot get value from SwitchingStore if reference is too short", %{store: store} do
@@ -74,7 +74,7 @@ defmodule StorageCombinatorsTest.Impl.SwitchingStoreTest do
 
   test "Cannot fetch value from SwitchingStore if reference is too short", %{store: store} do
     {_new_store, value} = Storage.fetch(store, "one")
-    assert value == :error
+    assert value == {:error, {:ref_path_too_short, "one"}}
   end
 
   test "Cannot put value into SwitchingStore if reference is too short", %{store: store} do

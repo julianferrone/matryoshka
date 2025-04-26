@@ -50,8 +50,8 @@ defmodule StorageCombinatorsTest.Impl.MappingStoreTest do
     {_new_store, value2} = Storage.fetch(decrement_on_retrieve, 1)
 
     # Assert
-    assert value1 == :error
-    assert value2 == :error
+    assert value1 == {:error, {:no_ref, 1}}
+    assert value2 == {:error, {:no_ref, 1}}
   end
 
   test "Fetch on empty MappingStore doesn't change MappingStore", %{

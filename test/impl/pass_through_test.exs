@@ -30,7 +30,7 @@ defmodule StorageCombinatorsTest.Impl.PassThroughTest do
     {_new_store, value} = Storage.fetch(store, 1)
 
     # Assert
-    assert value == :error
+    assert value == {:error, {:no_ref, 1}}
   end
 
   test "Fetch on empty PassThrough doesn't change PassThrough", %{store: store} do

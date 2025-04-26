@@ -34,7 +34,7 @@ defmodule StorageCombinatorsTest.LoggingStoreTest do
     {_result, log} = with_log(fn -> Storage.fetch(store, 1) end)
 
     # Assert
-    assert log =~ "FETCH 1 => :error"
+    assert log =~ "FETCH 1 => {:error, {:no_ref, 1}}"
   end
 
   test "Fetch on LoggingStore with value logs value", %{store: store} do

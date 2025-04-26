@@ -13,7 +13,13 @@ defmodule StorageCombinators.Impl.MapStore do
 
   defimpl StorageCombinators.Storage do
     def fetch(%MapStore{map: map} = store, ref) do
-      {store, Map.fetch(map, ref)}
+      value =
+        case Map.fetch(map, ref) do
+          {:ok, value} -> {:ok, value}
+          :error -> {:error, {:no_ref, ref}}
+        end
+
+      {store, value}
     end
 
     def get(%MapStore{map: map} = store, ref) do

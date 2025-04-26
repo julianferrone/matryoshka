@@ -70,7 +70,7 @@ defmodule StorageCombinatorsTest.Impl.CachingStoreTest do
     {_new_store, value} = Storage.fetch(store, 1)
 
     # Assert
-    assert value == :error
+    assert value == {:error, {:no_ref, 1}}
   end
 
   test "Fetch on CachingStore main store returns {:ok, value}", context do

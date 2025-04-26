@@ -51,8 +51,8 @@ defmodule StorageCombinators.Impl.MappingStore do
 
       value_new =
         case value do
-          :error -> :error
           {:ok, value} -> {:ok, map_retrieved.(value)}
+          error -> error
         end
 
       {store_new, value_new}

@@ -31,7 +31,7 @@ defmodule StorageCombinators.Impl.SwitchingStore do
     [path_head | path_tail] = Reference.path_segments(ref)
 
     case path_tail do
-      [] -> {:error, "Reference path '#{ref}' too short"}
+      [] -> {:error, {:ref_path_too_short, ref}}
       path -> {:ok, path_head, Enum.join(path, "/")}
     end
   end
@@ -52,7 +52,7 @@ defmodule StorageCombinators.Impl.SwitchingStore do
         new_store = SwitchingStore.switching_store(new_path_store_map)
         {new_store, value}
       else
-        _ -> {store, :error}
+        {:error, reason} -> {store, {:error, reason}}
       end
     end
 
