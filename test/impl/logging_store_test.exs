@@ -17,44 +17,44 @@ defmodule StorageCombinatorsTest.LoggingStoreTest do
 
   test "Get on empty LoggingStore logs nil", %{store: store} do
     # Act
-    {_result, log} = with_log(fn -> Storage.get(store, 1) end)
+    {_result, log} = with_log(fn -> Storage.get(store, "item") end)
 
     # Assert
-    assert log =~ "GET 1 => nil"
+    assert log =~ "GET \"item\" => nil"
   end
 
   test "Get on LoggingStore with value logs value", %{store: store} do
-    new_store = Storage.put(store, 1, :one)
-    {_store, log} = with_log(fn -> Storage.get(new_store, 1) end)
-    assert log =~ "GET 1 => :one"
+    new_store = Storage.put(store, "item", :item)
+    {_store, log} = with_log(fn -> Storage.get(new_store, "item") end)
+    assert log =~ "GET \"item\" => :item"
   end
 
   test "Fetch on empty LoggingStore logs :error", %{store: store} do
     # Act
-    {_result, log} = with_log(fn -> Storage.fetch(store, 1) end)
+    {_result, log} = with_log(fn -> Storage.fetch(store, "item") end)
 
     # Assert
-    assert log =~ "FETCH 1 => {:error, {:no_ref, 1}}"
+    assert log =~ "FETCH \"item\" => {:error, {:no_ref, \"item\"}}"
   end
 
   test "Fetch on LoggingStore with value logs value", %{store: store} do
-    new_store = Storage.put(store, 1, :one)
-    {_store, log} = with_log(fn -> Storage.fetch(new_store, 1) end)
-    assert log =~ "FETCH 1 => {:ok, :one}"
+    new_store = Storage.put(store, "item", :item)
+    {_store, log} = with_log(fn -> Storage.fetch(new_store, "item") end)
+    assert log =~ "FETCH \"item\" => {:ok, :item}"
   end
 
   test "Putting an item into a LoggingStore logs PUT", %{store: store} do
     # Act
-    {_store, log} = with_log(fn -> Storage.put(store, 1, :one) end)
+    {_store, log} = with_log(fn -> Storage.put(store, "item", :item) end)
 
-    assert log =~ "PUT 1 <= :one"
+    assert log =~ "PUT \"item\" <= :item"
   end
 
   test "Deleting on an empty LoggingStore logs DELETE", %{store: store} do
     # Act
-    {_store, log} = with_log(fn -> Storage.delete(store, 1) end)
+    {_store, log} = with_log(fn -> Storage.delete(store, "item") end)
 
     # Assert
-    assert log =~ "DELETE 1"
+    assert log =~ "DELETE \"item\""
   end
 end

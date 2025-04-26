@@ -10,8 +10,8 @@ defmodule StorageCombinatorsTest.Impl.CachingStoreTest do
       empty: MapStore.map_store() |> CachingStore.caching_store(),
       full:
         CachingStore.caching_store(
-          MapStore.map_store(%{1 => :one, 2 => :two}),
-          MapStore.map_store(%{3 => :three, 4 => :four})
+          MapStore.map_store(%{"one" => :one, "two" => :two}),
+          MapStore.map_store(%{"three" => :three, "four" => :four})
         )
     ]
   end
@@ -21,7 +21,7 @@ defmodule StorageCombinatorsTest.Impl.CachingStoreTest do
     store = context[:empty]
 
     # Act
-    {_new_store, value} = Storage.get(store, 1)
+    {_new_store, value} = Storage.get(store, "one")
 
     # Assert
     assert value == nil
@@ -32,7 +32,7 @@ defmodule StorageCombinatorsTest.Impl.CachingStoreTest do
     store = context[:full]
 
     # Act
-    {_new_store, value} = Storage.get(store, 1)
+    {_new_store, value} = Storage.get(store, "one")
 
     # Assert
     assert value == :one
@@ -43,7 +43,7 @@ defmodule StorageCombinatorsTest.Impl.CachingStoreTest do
     store = context[:full]
 
     # Act
-    {_new_store, value} = Storage.get(store, 3)
+    {_new_store, value} = Storage.get(store, "three")
 
     # Assert
     assert value == :three
@@ -51,7 +51,7 @@ defmodule StorageCombinatorsTest.Impl.CachingStoreTest do
 
   test "Get on CachingStore—that has no value in fast store—changes store", context do
     store = context[:full]
-    {new_store, _value} = Storage.get(store, 1)
+    {new_store, _value} = Storage.get(store, "one")
     refute store == new_store
   end
 
@@ -67,10 +67,10 @@ defmodule StorageCombinatorsTest.Impl.CachingStoreTest do
     store = context[:empty]
 
     # Act
-    {_new_store, value} = Storage.fetch(store, 1)
+    {_new_store, value} = Storage.fetch(store, "one")
 
     # Assert
-    assert value == {:error, {:no_ref, 1}}
+    assert value == {:error, {:no_ref, "one"}}
   end
 
   test "Fetch on CachingStore main store returns {:ok, value}", context do
@@ -78,7 +78,7 @@ defmodule StorageCombinatorsTest.Impl.CachingStoreTest do
     store = context[:full]
 
     # Act
-    {_new_store, value} = Storage.fetch(store, 1)
+    {_new_store, value} = Storage.fetch(store, "one")
 
     # Assert
     assert value == {:ok, :one}
@@ -89,7 +89,7 @@ defmodule StorageCombinatorsTest.Impl.CachingStoreTest do
     store = context[:full]
 
     # Act
-    {_new_store, value} = Storage.fetch(store, 3)
+    {_new_store, value} = Storage.fetch(store, "three")
 
     # Assert
     assert value == {:ok, :three}
@@ -97,14 +97,14 @@ defmodule StorageCombinatorsTest.Impl.CachingStoreTest do
 
   test "Fetch on CachingStore main store changes store", context do
     store = context[:full]
-    {new_store, _value} = Storage.fetch(store, 1)
+    {new_store, _value} = Storage.fetch(store, "one")
     refute store == new_store
   end
 
   test "Putting a value into a CachingStore, then fetching it, gives the same value", context do
     store = context[:empty]
-    new_store = Storage.put(store, 5, :five)
-    {_store, value} = Storage.fetch(new_store, 5)
+    new_store = Storage.put(store, "five", :five)
+    {_store, value} = Storage.fetch(new_store, "five")
     assert value == {:ok, :five}
   end
 end

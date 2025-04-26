@@ -11,7 +11,7 @@ defmodule StorageCombinatorsTest.Impl.PassThroughTest do
 
   test "Get on empty PassThrough returns nil", %{store: store} do
     # Act
-    {_new_store, value} = Storage.get(store, 1)
+    {_new_store, value} = Storage.get(store, "item")
 
     # Assert
     assert value == nil
@@ -19,7 +19,7 @@ defmodule StorageCombinatorsTest.Impl.PassThroughTest do
 
   test "Get on empty PassThrough doesn't change PassThrough", %{store: store} do
     # Act
-    {new_store, _value} = Storage.get(store, 1)
+    {new_store, _value} = Storage.get(store, "item")
 
     # Assert
     assert store == new_store
@@ -27,15 +27,15 @@ defmodule StorageCombinatorsTest.Impl.PassThroughTest do
 
   test "Fetch on empty PassThrough returns nil", %{store: store} do
     # Act
-    {_new_store, value} = Storage.fetch(store, 1)
+    {_new_store, value} = Storage.fetch(store, "item")
 
     # Assert
-    assert value == {:error, {:no_ref, 1}}
+    assert value == {:error, {:no_ref, "item"}}
   end
 
   test "Fetch on empty PassThrough doesn't change PassThrough", %{store: store} do
     # Act
-    {new_store, _value} = Storage.fetch(store, 1)
+    {new_store, _value} = Storage.fetch(store, "item")
 
     # Assert
     assert store == new_store
@@ -45,15 +45,15 @@ defmodule StorageCombinatorsTest.Impl.PassThroughTest do
     store: store
   } do
     # Act
-    store = Storage.put(store, 1, :one)
-    {_store, value} = Storage.get(store, 1)
+    store = Storage.put(store, "item", :item)
+    {_store, value} = Storage.get(store, "item")
 
-    assert :one == value
+    assert :item == value
   end
 
   test "Deleting on an empty PassThrough doesn't change the PassThrough", %{store: store} do
     # Act
-    new_store = Storage.delete(store, 1)
+    new_store = Storage.delete(store, "item")
 
     # Assert
     assert store == new_store
@@ -62,8 +62,8 @@ defmodule StorageCombinatorsTest.Impl.PassThroughTest do
   test "Adding an item to an empty PassThrough, then deleting it immediately, returns the empty PassThrough",
        %{store: store} do
     # Act
-    store_one = Storage.put(store, 1, :one)
-    store_two = Storage.delete(store_one, 1)
+    store_item = Storage.put(store, "item", :item)
+    store_two = Storage.delete(store_item, "item")
 
     # Assert
     assert store == store_two

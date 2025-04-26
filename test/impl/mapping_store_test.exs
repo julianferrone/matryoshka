@@ -20,8 +20,8 @@ defmodule StorageCombinatorsTest.Impl.MappingStoreTest do
     decrement_on_retrieve: decrement_on_retrieve
   } do
     # Act
-    {_new_store, value1} = Storage.get(increment_on_insert, 1)
-    {_new_store, value2} = Storage.get(decrement_on_retrieve, 1)
+    {_new_store, value1} = Storage.get(increment_on_insert, "item")
+    {_new_store, value2} = Storage.get(decrement_on_retrieve, "item")
 
     # Assert
     assert value1 == nil
@@ -33,8 +33,8 @@ defmodule StorageCombinatorsTest.Impl.MappingStoreTest do
     decrement_on_retrieve: decrement_on_retrieve
   } do
     # Act
-    {new_ioi, _value} = Storage.get(increment_on_insert, 1)
-    {new_dor, _value} = Storage.get(decrement_on_retrieve, 1)
+    {new_ioi, _value} = Storage.get(increment_on_insert, "item")
+    {new_dor, _value} = Storage.get(decrement_on_retrieve, "item")
 
     # Assert
     assert increment_on_insert == new_ioi
@@ -46,12 +46,12 @@ defmodule StorageCombinatorsTest.Impl.MappingStoreTest do
     decrement_on_retrieve: decrement_on_retrieve
   } do
     # Act
-    {_new_store, value1} = Storage.fetch(increment_on_insert, 1)
-    {_new_store, value2} = Storage.fetch(decrement_on_retrieve, 1)
+    {_new_store, value1} = Storage.fetch(increment_on_insert, "item")
+    {_new_store, value2} = Storage.fetch(decrement_on_retrieve, "item")
 
     # Assert
-    assert value1 == {:error, {:no_ref, 1}}
-    assert value2 == {:error, {:no_ref, 1}}
+    assert value1 == {:error, {:no_ref, "item"}}
+    assert value2 == {:error, {:no_ref, "item"}}
   end
 
   test "Fetch on empty MappingStore doesn't change MappingStore", %{
@@ -59,8 +59,8 @@ defmodule StorageCombinatorsTest.Impl.MappingStoreTest do
     decrement_on_retrieve: decrement_on_retrieve
   } do
     # Act
-    {new_ioi, _value} = Storage.fetch(increment_on_insert, 1)
-    {new_dor, _value} = Storage.fetch(decrement_on_retrieve, 1)
+    {new_ioi, _value} = Storage.fetch(increment_on_insert, "item")
+    {new_dor, _value} = Storage.fetch(decrement_on_retrieve, "item")
 
     # Assert
     assert increment_on_insert == new_ioi
@@ -72,8 +72,8 @@ defmodule StorageCombinatorsTest.Impl.MappingStoreTest do
          increment_on_insert: increment_on_insert
        } do
     # Act
-    increment_on_insert = Storage.put(increment_on_insert, :one, 1)
-    {_new_ioi, value} = Storage.get(increment_on_insert, :one)
+    increment_on_insert = Storage.put(increment_on_insert, "one", 1)
+    {_new_ioi, value} = Storage.get(increment_on_insert, "one")
 
     assert value == 2
   end
@@ -83,8 +83,8 @@ defmodule StorageCombinatorsTest.Impl.MappingStoreTest do
         decrement_on_retrieve: decrement_on_retrieve
        } do
     # Act
-    decrement_on_retrieve = Storage.put(decrement_on_retrieve, :one, 1)
-    {_new_dor, value} = Storage.get(decrement_on_retrieve, :one)
+    decrement_on_retrieve = Storage.put(decrement_on_retrieve, "one", 1)
+    {_new_dor, value} = Storage.get(decrement_on_retrieve, "one")
 
     assert value == 0
   end
