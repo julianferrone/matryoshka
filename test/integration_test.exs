@@ -1,7 +1,6 @@
 defmodule StorageCombinatorsTest.IntegrationTest do
   use ExUnit.Case, async: true
 
-  alias Erl2exVendored.Pipeline.ExFunc
   alias StorageCombinators.Impl.MapStore
   alias StorageCombinators.Client
 
