@@ -16,8 +16,15 @@ defmodule StorageCombinators.Impl.CachingStore do
           fast_store: impl_storage()
         }
 
+  @doc """
+  Create a CachingStore using a MapStore as the fast cache store.
+  """
   def caching_store(main_storage), do: caching_store(main_storage, map_store())
 
+  @doc """
+  Create a CachingStore from a main store (which is the source of truth for all
+  data ) and a fast store (which will cache the results from the main store).
+  """
   def caching_store(main_storage, fast_storage)
       when is_struct(main_storage) and is_struct(fast_storage) do
     is_storage!(main_storage)
