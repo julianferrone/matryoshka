@@ -1,9 +1,10 @@
 defmodule StorageCombinatorsTest.Impl.MappingStoreTest do
-  use ExUnit.Case, async: true
-
   alias StorageCombinators.Impl.MapStore
   alias StorageCombinators.Impl.MappingStore
   alias StorageCombinators.Storage
+
+  use ExUnit.Case, async: true
+  doctest MappingStore
 
   setup do
     {:ok,

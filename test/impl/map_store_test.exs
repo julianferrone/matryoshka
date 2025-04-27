@@ -1,8 +1,9 @@
 defmodule StorageCombinatorsTest.Impl.MapStoreTest do
-  use ExUnit.Case, async: true
-
-  alias StorageCombinators.Impl.MapStore
   alias StorageCombinators.Storage
+  alias StorageCombinators.Impl.MapStore
+
+  use ExUnit.Case, async: true
+  doctest MapStore
 
   setup do
     {:ok, store: MapStore.map_store()}

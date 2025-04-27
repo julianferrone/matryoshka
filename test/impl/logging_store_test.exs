@@ -1,12 +1,13 @@
 defmodule StorageCombinatorsTest.LoggingStoreTest do
-  use ExUnit.Case, async: true
-
   import ExUnit.CaptureLog
   require Logger
 
   alias StorageCombinators.Impl.MapStore
   alias StorageCombinators.Impl.LoggingStore
   alias StorageCombinators.Storage
+
+  use ExUnit.Case, async: true
+  doctest LoggingStore
 
   @moduletag capture_log: true
 

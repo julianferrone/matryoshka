@@ -1,9 +1,10 @@
 defmodule StorageCombinatorsTest.Impl.PassThroughTest do
-  use ExUnit.Case, async: true
-
   alias StorageCombinators.Impl.PassThrough
   alias StorageCombinators.Impl.MapStore
   alias StorageCombinators.Storage
+
+  use ExUnit.Case, async: true
+  doctest PassThrough
 
   setup do
     {:ok, store: MapStore.map_store() |> PassThrough.pass_through()}

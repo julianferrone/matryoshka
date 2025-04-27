@@ -1,9 +1,10 @@
 defmodule StorageCombinatorsTest.Impl.CachingStoreTest do
-  use ExUnit.Case, async: true
-
   alias StorageCombinators.Impl.CachingStore
   alias StorageCombinators.Impl.MapStore
   alias StorageCombinators.Storage
+
+  use ExUnit.Case, async: true
+  doctest CachingStore
 
   setup do
     [
