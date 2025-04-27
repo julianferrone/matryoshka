@@ -15,6 +15,24 @@ defmodule StorageCombinators.Impl.SwitchingStore do
           path_store_map: %{String.t() => impl_storage()}
         }
 
+  @doc """
+  Creates a SwitchingStore that routes fetch/get/put/delete requests to different
+  sub-stores depending on the first segment of the path.
+
+  ## Examples
+
+      iex> alias StorageCombinators.Storage
+      iex> alias StorageCombinators.Impl.MapStore
+      iex> alias StorageCombinators.Impl.SwitchingStore
+      iex> store = SwitchingStore.switching_store(%{"one" => MapStore.map_store(), "two" => MapStore.map_store()})
+      iex> store = Storage.put(store, "one/item", :item)
+      iex> {_store, value} = Storage.fetch(store, "one/item")
+      iex> value
+      {:ok, :item}
+      iex> {_store, value} = Storage.fetch(store, "two/item")
+      iex> value
+      {:error, {:no_ref, "item"}}
+  """
   @spec switching_store(%{String.t() => impl_storage()} | impl_storage()) :: SwitchingStore.t()
   def switching_store(path_store_map) when is_map(path_store_map) do
     Map.values(path_store_map)
@@ -27,6 +45,7 @@ defmodule StorageCombinators.Impl.SwitchingStore do
 
   alias __MODULE__
 
+  @spec split_reference(any()) :: {:error, {:ref_path_too_short, any()}} | {:ok, any(), binary()}
   def split_reference(ref) do
     [path_head | path_tail] = Reference.path_segments(ref)
 

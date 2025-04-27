@@ -1,5 +1,6 @@
 defmodule StorageCombinatorsTest.Impl.SwitchingStoreTest do
   use ExUnit.Case, async: true
+  doctest StorageCombinators.Impl.SwitchingStore
 
   alias StorageCombinators.Impl.SwitchingStore
   alias StorageCombinators.Impl.MapStore
