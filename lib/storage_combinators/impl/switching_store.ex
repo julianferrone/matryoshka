@@ -21,9 +21,6 @@ defmodule StorageCombinators.Impl.SwitchingStore do
 
   ## Examples
 
-      iex> alias StorageCombinators.Storage
-      iex> alias StorageCombinators.Impl.MapStore
-      iex> alias StorageCombinators.Impl.SwitchingStore
       iex> store = SwitchingStore.switching_store(%{"one" => MapStore.map_store(), "two" => MapStore.map_store()})
       iex> store = Storage.put(store, "one/item", :item)
       iex> {_store, value} = Storage.fetch(store, "one/item")
