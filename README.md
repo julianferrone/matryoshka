@@ -4,7 +4,7 @@ StorageCombinators is an implementation in Elixir of the ideas about composable 
 
 Any module that implements the Storage protocol (get, fetch, put, delete) is a **store**. Stores don't need to actually store data, but can compute it, as long as it implements the protocol.
 
-Some stores compute their results by referring to other stores. These are known as **storage combinators**.
+Some stores produce their results by adding behaviour on top of inner sub-stores. These are known as **storage combinators**.
 
 ## Using StorageCombinators
 
@@ -43,16 +43,19 @@ The business logic of different stores and store combinators is found under /lib
 | MapStore | `map_store/0`, `map_store/1` | Provides a Map-backed store | ❌ | N/A |
 | MappingStore | `mapping_store/2` | Applies functions to the reference path, items on retrieval, and items on storage. | ✅ | Takes 1 underlying store | 
 | PassThrough | `pass_through/1` | Directs all calls to the inner store and does nothing | ✅ | Takes 1 underlying store |
-| SwitchingStore | `switching_store/1` | Directs all storage calls | ✅ | Takes a Map of strings to underlying stores |
+| SwitchingStore | `switching_store/1` | Directs all storage calls to inner stores depending on the first path segment of the `path` | ✅ | Takes a Map of strings to underlying stores |
 
 Of these, PassThrough is useless, and is provided only to compare with the PassThrough store in (Weiher & Hirschfeld, 2019).
 
 ## To-Do
 
-- [ ] Add FileStore as disk based storage.
+- [ ] Add FileStore as file-system based storage
 - [ ] Add JsonStore and XmlStore as specialisations of MappingStore
 - [ ] Add patch functionality
   - This will probably only be allowed for certain values like JSON or XML, using RFC 6902 JSON Patch and RFC 5261 XML Patch Operations 
+- [ ] Add persistent key-value storage
+  - using an append-only log approach
+- [ ] Add a store that stores values in either a persistent KV store or as files depending on the size of the value
 
 ## References
 
