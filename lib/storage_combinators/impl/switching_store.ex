@@ -2,7 +2,7 @@ defmodule StorageCombinators.Impl.SwitchingStore do
   alias StorageCombinators.Impl.SwitchingStore
   alias StorageCombinators.Reference
   alias StorageCombinators.Storage
-  import StorageCombinators.StorageCombinators, only: [is_storage!: 1]
+  import StorageCombinators.Assert, only: [is_storage!: 1]
 
   @enforce_keys [:path_store_map]
   defstruct @enforce_keys

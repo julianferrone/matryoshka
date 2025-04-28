@@ -1,5 +1,5 @@
 defmodule StorageCombinators.Impl.MappingStore do
-  import StorageCombinators.StorageCombinators, only: [is_storage!: 1]
+  import StorageCombinators.Assert, only: [is_storage!: 1]
 
   @enforce_keys [:inner]
   defstruct [

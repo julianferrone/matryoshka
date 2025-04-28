@@ -1,4 +1,4 @@
-defmodule StorageCombinators.StorageCombinators do
+defmodule StorageCombinators.Assert do
   alias StorageCombinators.Storage
 
   @doc """

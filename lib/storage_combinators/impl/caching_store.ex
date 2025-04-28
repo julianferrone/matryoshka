@@ -1,7 +1,7 @@
 defmodule StorageCombinators.Impl.CachingStore do
   alias StorageCombinators.Storage
   import StorageCombinators.Impl.MapStore, only: [map_store: 0]
-  import StorageCombinators.StorageCombinators, only: [is_storage!: 1]
+  import StorageCombinators.Assert, only: [is_storage!: 1]
 
   @enforce_keys [:main_store, :fast_store]
   defstruct [:main_store, :fast_store]
