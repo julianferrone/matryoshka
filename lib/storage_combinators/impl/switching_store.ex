@@ -53,45 +53,48 @@ defmodule StorageCombinators.Impl.SwitchingStore do
     end
   end
 
+  def locate_substore(%SwitchingStore{path_store_map: path_store_map}, ref) do
+    with {:split_ref, {:ok, path_first, path_rest}} <-
+           {:split_ref, SwitchingStore.split_reference(ref)},
+         {:fetch_substore, {:ok, sub_store}} <-
+           {:fetch_substore, Map.fetch(path_store_map, path_first)} do
+      {:ok, sub_store, path_first, path_rest}
+    else
+      {:split_ref, {:error, error}} -> {:error, error}
+      {:fetch_substore, :error} -> {:error, :no_substore}
+    end
+  end
+
   defimpl Storage do
     def fetch(%SwitchingStore{path_store_map: path_store_map} = store, ref) do
-      with {:split_ref, {:ok, path_first, path_rest}} <-
-             {:split_ref, SwitchingStore.split_reference(ref)},
-           {:fetch_substore, {:ok, sub_store}} <-
-             {:fetch_substore, Map.fetch(path_store_map, path_first)},
+      with {:locate, {:ok, sub_store, path_first, path_rest}} <-
+             {:locate, SwitchingStore.locate_substore(store, ref)},
            {:update_substore, {new_sub_store, {:ok, value}}} <-
              {:update_substore, Storage.fetch(sub_store, path_rest)} do
         new_path_store_map = Map.put(path_store_map, path_first, new_sub_store)
         new_store = SwitchingStore.switching_store(new_path_store_map)
         {new_store, {:ok, value}}
       else
-        {:split_ref, error} -> {store, error}
-        {:fetch_substore, :error} -> {store, {:error, :no_substore}}
+        {:locate, error} -> {store, error}
         {:update_substore, {store, error}} -> {store, error}
       end
     end
 
     def get(%SwitchingStore{path_store_map: path_store_map} = store, ref) do
-      with {:split_ref, {:ok, path_first, path_rest}} <-
-             {:split_ref, SwitchingStore.split_reference(ref)},
-           {:fetch_substore, {:ok, sub_store}} <-
-             {:fetch_substore, Map.fetch(path_store_map, path_first)},
-           {:update_substore, {new_sub_store, value}} =
-             {:update_substore, Storage.get(sub_store, path_rest)} do
+      with {:locate, {:ok, sub_store, path_first, path_rest}} <-
+             {:locate, SwitchingStore.locate_substore(store, ref)} do
+        {new_sub_store, value} = Storage.get(sub_store, path_rest)
         new_path_store_map = Map.put(path_store_map, path_first, new_sub_store)
         new_store = SwitchingStore.switching_store(new_path_store_map)
         {new_store, value}
       else
-        {:split_ref, error} -> {store, nil}
-        {:fetch_substore, :error} -> {store, nil}
+        {:locate, error} -> {store, nil}
       end
     end
 
     def put(%SwitchingStore{path_store_map: path_store_map} = store, ref, value) do
-      with {:split_ref, {:ok, path_first, path_rest}} <-
-             {:split_ref, SwitchingStore.split_reference(ref)},
-           {:fetch_substore, {:ok, sub_store}} <-
-             {:fetch_substore, Map.fetch(path_store_map, path_first)} do
+      with {:locate, {:ok, sub_store, path_first, path_rest}} <-
+             {:locate, SwitchingStore.locate_substore(store, ref)} do
         new_sub_store = Storage.put(sub_store, path_rest, value)
         new_path_store_map = Map.put(path_store_map, path_first, new_sub_store)
         new_store = SwitchingStore.switching_store(new_path_store_map)
@@ -102,10 +105,8 @@ defmodule StorageCombinators.Impl.SwitchingStore do
     end
 
     def delete(%SwitchingStore{path_store_map: path_store_map} = store, ref) do
-      with {:split_ref, {:ok, path_first, path_rest}} <-
-             {:split_ref, SwitchingStore.split_reference(ref)},
-           {:fetch_substore, {:ok, sub_store}} <-
-             {:fetch_substore, Map.fetch(path_store_map, path_first)} do
+      with {:locate, {:ok, sub_store, path_first, path_rest}} <-
+             {:locate, SwitchingStore.locate_substore(store, ref)} do
         new_sub_store = Storage.delete(sub_store, path_rest)
         new_path_store_map = Map.put(path_store_map, path_first, new_sub_store)
         new_store = SwitchingStore.switching_store(new_path_store_map)
