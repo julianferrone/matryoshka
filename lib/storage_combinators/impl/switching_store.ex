@@ -100,13 +100,13 @@ defmodule StorageCombinators.Impl.SwitchingStore do
     def fetch(store, ref) do
       with {:locate, {:ok, sub_store, path_first, path_rest}} <-
              {:locate, SwitchingStore.locate_substore(store, ref)},
-           {:update_substore, {new_sub_store, {:ok, value}}} <-
-             {:update_substore, Storage.fetch(sub_store, path_rest)} do
+           {:fetch, {new_sub_store, {:ok, value}}} <-
+             {:fetch, Storage.fetch(sub_store, path_rest)} do
         new_store = SwitchingStore.update_substore(store, new_sub_store, path_first)
         {new_store, {:ok, value}}
       else
         {:locate, error} -> {store, error}
-        {:update_substore, {store, error}} -> {store, error}
+        {:fetch, {store, error}} -> {store, error}
       end
     end
 
