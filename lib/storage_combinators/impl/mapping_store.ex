@@ -50,37 +50,33 @@ defmodule StorageCombinators.Impl.MappingStore do
 
   ## Examples:
 
-  Mapping value with function when putting the value:
+  Imports:
 
       iex> alias StorageCombinators.Storage
       iex> alias StorageCombinators.Impl.MapStore
       iex> alias StorageCombinators.Impl.MappingStore
+
+  Mapping value with function when putting the value:
+
       iex> store = MapStore.map_store() |> MappingStore.mapping_store([map_to_store: fn x -> x + 1 end])
       iex> store = Storage.put(store, "one", 1)
-      iex> {store, value} = Storage.get(store, "one")
+      iex> {_store, value} = Storage.get(store, "one")
       iex> value
       2
 
   Mapping value with function when retrieving (get/fetch) the value:
 
-      iex> alias StorageCombinators.Storage
-      iex> alias StorageCombinators.Impl.MapStore
-      iex> alias StorageCombinators.Impl.MappingStore
       iex> store = MapStore.map_store() |> MappingStore.mapping_store([map_retrieved: fn x -> x - 1 end])
       iex> store = Storage.put(store, "one", 1)
-      iex> {store, value} = Storage.get(store, "one")
+      iex> {_store, value} = Storage.get(store, "one")
       iex> value
       0
 
-  Mapping reference with function
+  Mapping reference with function:
 
-      iex> alias StorageCombinators.Storage
-      iex> alias StorageCombinators.Impl.MapStore
-      iex> alias StorageCombinators.Impl.MappingStore
       iex> store = MapStore.map_store() |> MappingStore.mapping_store([map_ref: fn x -> Atom.to_string(x) end])
-      # Converts the atom to a String path internally
       iex> store = Storage.put(store, :item, "item")
-      iex> {store, value} = Storage.get(store, :item)
+      iex> {_store, value} = Storage.get(store, :item)
       iex> value
       "item"
   """
