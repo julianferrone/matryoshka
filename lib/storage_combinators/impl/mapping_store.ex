@@ -58,7 +58,9 @@ defmodule StorageCombinators.Impl.MappingStore do
 
   Mapping value with function when putting the value:
 
-      iex> store = MapStore.map_store() |> MappingStore.mapping_store([map_to_store: fn x -> x + 1 end])
+      iex> store = MapStore.map_store() |> MappingStore.mapping_store(
+      ...>   [map_to_store: fn x -> x + 1 end]
+      ...> )
       iex> store = Storage.put(store, "one", 1)
       iex> {_store, value} = Storage.get(store, "one")
       iex> value
@@ -66,7 +68,9 @@ defmodule StorageCombinators.Impl.MappingStore do
 
   Mapping value with function when retrieving (get/fetch) the value:
 
-      iex> store = MapStore.map_store() |> MappingStore.mapping_store([map_retrieved: fn x -> x - 1 end])
+      iex> store = MapStore.map_store() |> MappingStore.mapping_store(
+      ...>   [map_retrieved: fn x -> x - 1 end]
+      ...> )
       iex> store = Storage.put(store, "one", 1)
       iex> {_store, value} = Storage.get(store, "one")
       iex> value
@@ -74,7 +78,9 @@ defmodule StorageCombinators.Impl.MappingStore do
 
   Mapping reference with function:
 
-      iex> store = MapStore.map_store() |> MappingStore.mapping_store([map_ref: fn x -> Atom.to_string(x) end])
+      iex> store = MapStore.map_store() |> MappingStore.mapping_store(
+      ...>   [map_ref: fn x -> Atom.to_string(x) end]
+      ...> )
       iex> store = Storage.put(store, :item, "item")
       iex> {_store, value} = Storage.get(store, :item)
       iex> value
