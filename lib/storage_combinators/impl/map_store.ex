@@ -7,7 +7,7 @@ defmodule StorageCombinators.Impl.MapStore do
         }
 
   @doc """
-  Creates
+  Creates a key-value store that is backed by a Elixir Map.
 
   ## Examples
       iex> MapStore.map_store()
