@@ -6,6 +6,19 @@ defmodule StorageCombinators.Impl.MapStore do
           map: map()
         }
 
+  @doc """
+  Creates
+
+  ## Examples
+      iex> MapStore.map_store()
+      %StorageCombinators.Impl.MapStore{map: %{}}
+
+      iex> store = MapStore.map_store()
+      iex> store = Storage.put(store, "one", :one)
+      iex> {_store, value} = Storage.fetch(store, "one")
+      iex> value
+      {:ok, :one}
+  """
   def map_store(), do: map_store(Map.new())
   def map_store(map), do: %__MODULE__{map: map}
 
