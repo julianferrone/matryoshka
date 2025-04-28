@@ -17,8 +17,8 @@ defmodule StorageCombinators.Client do
       iex> client.get("item")
       :item
   """
-  def start_link(default) do
-    @server.start_link(default)
+  def start_link(store) do
+    @server.start_link(store)
   end
 
   @doc """
@@ -45,10 +45,6 @@ defmodule StorageCombinators.Client do
 
   def put(ref, value) do
     GenServer.cast(@server, {:put, ref, value})
-  end
-
-  def patch(ref, value) do
-    GenServer.cast(@server, {:patch, ref, value})
   end
 
   def delete(ref) do
