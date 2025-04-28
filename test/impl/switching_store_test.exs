@@ -82,4 +82,19 @@ defmodule StorageCombinatorsTest.Impl.SwitchingStoreTest do
     new_store = Storage.put(store, "one", :one)
     assert new_store == store
   end
+
+  test "Cannot get value from SwitchingStore with no substore for first path segment", %{store: store} do
+    {_new_store, value} = Storage.get(store, "non_existing/item")
+    assert value == nil
+  end
+
+  test "Cannot fetch value from SwitchingStore with no substore for first path segment", %{store: store} do
+    {_new_store, value} = Storage.fetch(store, "non_existing/item")
+    assert value == {:error, :no_substore}
+  end
+
+  test "Cannot put value into SwitchingStore with no substore for first path segment", %{store: store} do
+    new_store = Storage.put(store, "non_existing/item", :item)
+    assert new_store == store
+  end
 end
