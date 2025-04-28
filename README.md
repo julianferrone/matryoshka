@@ -36,14 +36,14 @@ get("one")
 
 The business logic of different stores and store combinators is found under /lib/storage_combinators/impl/. 
 
-| Store name | Explanation | Store Combinator? |
-| --- | --- | --- |
-| CachingStore | Directs storage calls to a fast cache store (on all calls) and a slow main store (always on put / delete, only if not available in fast cache store on get / fetch). | ✅ -- takes 2 underlying stores |
-| LoggingStore | Logs all storage calls | ✅ -- takes 1 underlying store  |
-| MapStore | Provides a map-backed store | ❌ |
-| MappingStore | Applies functions to the reference path, items on retrieval, and items on storage. | ✅ -- takes 1 underlying store | 
-| PassThrough | Directs all calls to the inner store and does nothing | ✅ |
-| SwitchingStore | Directs all storage calls | ✅ -- takes a map of strings to underlying stores |
+| Store name | Explanation | Store Combinator? | Wrapped stores |
+| --- | --- | --- | --- |
+| CachingStore | Directs storage calls to a fast cache store (on all calls) and a slow main store (always on put / delete, only if not available in fast cache store on get / fetch). | ✅ | Takes 2 underlying stores |
+| LoggingStore | Logs all storage calls | ✅ | Takes 1 underlying store  |
+| MapStore | Provides a map-backed store | ❌ | N/A |
+| MappingStore | Applies functions to the reference path, items on retrieval, and items on storage. | ✅ | Takes 1 underlying store | 
+| PassThrough | Directs all calls to the inner store and does nothing | ✅ | Takes 1 underlying store |
+| SwitchingStore | Directs all storage calls | ✅ | Takes a Map of strings to underlying stores |
 
 Of these, PassThrough is useless, and is provided only to compare with the PassThrough store in *Storage combinators*[^sc].
 
