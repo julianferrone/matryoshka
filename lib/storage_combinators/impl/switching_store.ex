@@ -1,13 +1,14 @@
 defmodule StorageCombinators.Impl.SwitchingStore do
   alias StorageCombinators.Impl.SwitchingStore
   alias StorageCombinators.Reference
+  alias StorageCombinators.Storage
   import StorageCombinators.StorageCombinators, only: [is_storage!: 1]
 
   @enforce_keys [:path_store_map]
   defstruct @enforce_keys
 
   @typedoc """
-  A struct that implements the StorageCombinators.Storage protocol.
+  A struct that implements the Storage protocol.
   """
   @type impl_storage :: any()
 
@@ -52,43 +53,47 @@ defmodule StorageCombinators.Impl.SwitchingStore do
     end
   end
 
-  def choose_store(%SwitchingStore{path_store_map: path_store_map}, ref) do
-    case split_reference(ref) do
-      {:ok, first, _rest} -> Map.fetch(path_store_map, first)
-      error -> error
-    end
-  end
-
-  defimpl StorageCombinators.Storage do
+  defimpl Storage do
     def fetch(%SwitchingStore{path_store_map: path_store_map} = store, ref) do
-      with {:ok, sub_store} <- SwitchingStore.choose_store(store, ref),
-           {:ok, first, rest_ref} = SwitchingStore.split_reference(ref) do
-        {new_sub_store, value} = StorageCombinators.Storage.fetch(sub_store, rest_ref)
-        new_path_store_map = Map.put(path_store_map, first, new_sub_store)
+      with {:split_ref, {:ok, path_first, path_rest}} <-
+             {:split_ref, SwitchingStore.split_reference(ref)},
+           {:fetch_substore, {:ok, sub_store}} <-
+             {:fetch_substore, Map.fetch(path_store_map, path_first)},
+           {:update_substore, {new_sub_store, {:ok, value}}} <-
+             {:update_substore, Storage.fetch(sub_store, path_rest)} do
+        new_path_store_map = Map.put(path_store_map, path_first, new_sub_store)
         new_store = SwitchingStore.switching_store(new_path_store_map)
-        {new_store, value}
+        {new_store, {:ok, value}}
       else
-        {:error, reason} -> {store, {:error, reason}}
+        {:split_ref, error} -> {store, error}
+        {:fetch_substore, :error} -> {store, {:error, :no_substore}}
+        {:update_substore, {store, error}} -> {store, error}
       end
     end
 
     def get(%SwitchingStore{path_store_map: path_store_map} = store, ref) do
-      with {:ok, sub_store} <- SwitchingStore.choose_store(store, ref),
-           {:ok, first, rest_ref} = SwitchingStore.split_reference(ref) do
-        {new_sub_store, value} = StorageCombinators.Storage.get(sub_store, rest_ref)
-        new_path_store_map = Map.put(path_store_map, first, new_sub_store)
+      with {:split_ref, {:ok, path_first, path_rest}} <-
+             {:split_ref, SwitchingStore.split_reference(ref)},
+           {:fetch_substore, {:ok, sub_store}} <-
+             {:fetch_substore, Map.fetch(path_store_map, path_first)},
+           {:update_substore, {new_sub_store, value}} =
+             {:update_substore, Storage.get(sub_store, path_rest)} do
+        new_path_store_map = Map.put(path_store_map, path_first, new_sub_store)
         new_store = SwitchingStore.switching_store(new_path_store_map)
         {new_store, value}
       else
-        _ -> {store, nil}
+        {:split_ref, error} -> {store, nil}
+        {:fetch_substore, :error} -> {store, nil}
       end
     end
 
     def put(%SwitchingStore{path_store_map: path_store_map} = store, ref, value) do
-      with {:ok, sub_store} <- SwitchingStore.choose_store(store, ref),
-           {:ok, first, rest_ref} = SwitchingStore.split_reference(ref) do
-        new_sub_store = StorageCombinators.Storage.put(sub_store, rest_ref, value)
-        new_path_store_map = Map.put(path_store_map, first, new_sub_store)
+      with {:split_ref, {:ok, path_first, path_rest}} <-
+             {:split_ref, SwitchingStore.split_reference(ref)},
+           {:fetch_substore, {:ok, sub_store}} <-
+             {:fetch_substore, Map.fetch(path_store_map, path_first)} do
+        new_sub_store = Storage.put(sub_store, path_rest, value)
+        new_path_store_map = Map.put(path_store_map, path_first, new_sub_store)
         new_store = SwitchingStore.switching_store(new_path_store_map)
         new_store
       else
@@ -97,10 +102,12 @@ defmodule StorageCombinators.Impl.SwitchingStore do
     end
 
     def delete(%SwitchingStore{path_store_map: path_store_map} = store, ref) do
-      with {:ok, sub_store} <- SwitchingStore.choose_store(store, ref),
-           {:ok, first, rest_ref} = SwitchingStore.split_reference(ref) do
-        new_sub_store = StorageCombinators.Storage.delete(sub_store, rest_ref)
-        new_path_store_map = Map.put(path_store_map, first, new_sub_store)
+      with {:split_ref, {:ok, path_first, path_rest}} <-
+             {:split_ref, SwitchingStore.split_reference(ref)},
+           {:fetch_substore, {:ok, sub_store}} <-
+             {:fetch_substore, Map.fetch(path_store_map, path_first)} do
+        new_sub_store = Storage.delete(sub_store, path_rest)
+        new_path_store_map = Map.put(path_store_map, path_first, new_sub_store)
         new_store = SwitchingStore.switching_store(new_path_store_map)
         new_store
       else
