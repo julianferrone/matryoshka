@@ -1,7 +1,11 @@
 defprotocol StorageCombinators.Storage do
   alias StorageCombinators.Reference
 
+  @typedoc """
+  A type that implements the StorageCombinators.Storage protocol.
+  """
   @type store :: any
+
   @type value :: any
 
   @doc """
@@ -12,7 +16,8 @@ defprotocol StorageCombinators.Storage do
   If `store` doesn't contain `ref`, then the reason why is returned in the shape
   of `{:error, reason}`.
   """
-  @spec fetch(store(), Reference) :: {store(), {:error, value()} | {:ok, value()}}
+  @spec fetch(store(), Reference.impl_reference()) ::
+          {store(), {:error, value()} | {:ok, value()}}
   def fetch(store, ref)
 
   @doc """
@@ -21,13 +26,13 @@ defprotocol StorageCombinators.Storage do
   If `store` contains the given `ref` then its value `value` is returned.
   If `store` doesn't contain `ref`, `nil` is returned.
   """
-  @spec get(store(), Reference) :: {store(), value()}
+  @spec get(store(), Reference.impl_reference()) :: {store(), value()}
   def get(store, ref)
 
   @doc """
   Puts the given `value` under `ref` in `store`.
   """
-  @spec put(store(), Reference, value()) :: store()
+  @spec put(store(), Reference.impl_reference(), value()) :: store()
   def put(store, ref, value)
 
   @doc """
@@ -35,6 +40,6 @@ defprotocol StorageCombinators.Storage do
 
   If the `ref` does not exist, returns `store` unchanged.
   """
-  @spec delete(store(), Reference) :: store()
+  @spec delete(store(), Reference.impl_reference()) :: store()
   def delete(store, ref)
 end
