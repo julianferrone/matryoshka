@@ -43,6 +43,23 @@ defmodule StorageCombinators.Impl.SwitchingStore do
 
   alias __MODULE__
 
+  @doc """
+  Splits a reference into the first path segment and the rest of the path segments.
+
+  ## Examples
+
+      iex> SwitchingStore.split_reference("parent/child.txt")
+      {:ok, "parent", "child.txt"}
+
+      iex> SwitchingStore.split_reference("grandparent/parent/child.txt")
+      {:ok, "grandparent", "parent/child.txt"}
+
+      iex> SwitchingStore.split_reference("too_short.txt")
+      {:error, {:ref_path_too_short, "too_short.txt"}}
+
+      iex> SwitchingStore.split_reference("")
+      {:error, {:ref_path_too_short, ""}}
+  """
   @spec split_reference(any()) :: {:error, {:ref_path_too_short, any()}} | {:ok, any(), binary()}
   def split_reference(ref) do
     [path_head | path_tail] = Reference.path_segments(ref)
@@ -53,6 +70,11 @@ defmodule StorageCombinators.Impl.SwitchingStore do
     end
   end
 
+  @doc """
+  Locates a substore within a SwitchingStore from a Reference, then returns the
+  substore, the first path segment of the Reference, and the remainder of the
+  Reference.
+  """
   def locate_substore(%SwitchingStore{path_store_map: path_store_map}, ref) do
     with {:split_ref, {:ok, path_first, path_rest}} <-
            {:split_ref, SwitchingStore.split_reference(ref)},
