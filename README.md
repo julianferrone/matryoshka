@@ -1,6 +1,6 @@
 # StorageCombinators
 
-StorageCombinators is an implementation of the ideas about composable storage components in *Storage combinators*[^sc] in Elixir.
+StorageCombinators is an implementation in Elixir of the ideas about composable storage in (Weiher & Hirschfeld, 2019).
 
 Any module that implements the Storage protocol (get, fetch, put, delete) is a **store**. Stores don't need to actually store data, but can compute it, as long as it implements the protocol.
 
@@ -37,7 +37,7 @@ get("one")
 The business logic of different stores and store combinators is found under /lib/storage_combinators/impl/. 
 
 | Store name | Explanation | Store Combinator? |
-| --- | --- |
+| --- | --- | --- |
 | CachingStore | Directs storage calls to a fast cache store (on all calls) and a slow main store (always on put / delete, only if not available in fast cache store on get / fetch). | ✅ -- takes 2 underlying stores |
 | LoggingStore | Logs all storage calls | ✅ -- takes 1 underlying store  |
 | MapStore | Provides a map-backed store | ❌ |
@@ -56,4 +56,4 @@ Of these, PassThrough is useless, and is provided only to compare with the PassT
 
 ## References
 
-[^sc]: *Marcel Weiher and Robert Hirschfeld.* (2019). **Storage combinators**. In Proceedings of the 2019 ACM SIGPLAN International Symposium on New Ideas, New Paradigms, and Reflections on Programming and Software (Onward! 2019). Association for Computing Machinery, New York, NY, USA, 111–127. [![DOI:10.1145/3359591.3359729]](https://zenodo.org/badge/DOI/10.1145/3359591.3359729.svg)](https://doi.org/10.1145/3359591.3359729)
+Weiher, M., & Hirschfeld, R. (2019). Storage combinators. *Proceedings of the 2019 ACM SIGPLAN International Symposium on New Ideas, New Paradigms, and Reflections on Programming and Software*, 111–127. [![DOI:10.1145/3359591.3359729](https://zenodo.org/badge/DOI/10.1145/3359591.3359729.svg)](https://doi.org/10.1145/3359591.3359729)
