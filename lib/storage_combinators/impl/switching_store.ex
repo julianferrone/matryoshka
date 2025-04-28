@@ -110,13 +110,13 @@ defmodule StorageCombinators.Impl.SwitchingStore do
         new_store = SwitchingStore.switching_store(new_path_store_map)
         {new_store, value}
       else
-        {:locate, error} -> {store, nil}
+        {:locate, _error} -> {store, nil}
       end
     end
 
     def put(%SwitchingStore{path_store_map: path_store_map} = store, ref, value) do
-      with {:locate, {:ok, sub_store, path_first, path_rest}} <-
-             {:locate, SwitchingStore.locate_substore(store, ref)} do
+      with {:ok, sub_store, path_first, path_rest} <-
+             SwitchingStore.locate_substore(store, ref) do
         new_sub_store = Storage.put(sub_store, path_rest, value)
         new_path_store_map = Map.put(path_store_map, path_first, new_sub_store)
         new_store = SwitchingStore.switching_store(new_path_store_map)
@@ -127,8 +127,8 @@ defmodule StorageCombinators.Impl.SwitchingStore do
     end
 
     def delete(%SwitchingStore{path_store_map: path_store_map} = store, ref) do
-      with {:locate, {:ok, sub_store, path_first, path_rest}} <-
-             {:locate, SwitchingStore.locate_substore(store, ref)} do
+      with {:ok, sub_store, path_first, path_rest} <-
+             SwitchingStore.locate_substore(store, ref) do
         new_sub_store = Storage.delete(sub_store, path_rest)
         new_path_store_map = Map.put(path_store_map, path_first, new_sub_store)
         new_store = SwitchingStore.switching_store(new_path_store_map)
