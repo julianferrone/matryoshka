@@ -5,8 +5,7 @@ defmodule StorageCombinatorsTest.IntegrationTest do
   alias StorageCombinators.Client
 
   setup do
-    store = MapStore.map_store()
-    {:ok, storage_server} = Client.start_link(store)
+    {:ok, storage_server} = MapStore.map_store() |> Client.start_link
     {:ok, storage_server: storage_server}
   end
 
