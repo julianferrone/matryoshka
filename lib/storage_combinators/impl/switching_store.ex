@@ -31,7 +31,7 @@ defmodule StorageCombinators.Impl.SwitchingStore do
       iex> value
       {:error, {:no_ref, "item"}}
   """
-  @spec switching_store(%{String.t() => impl_storage()} | impl_storage()) :: SwitchingStore.t()
+  @spec switching_store(%{String.t() => impl_storage()}) :: SwitchingStore.t()
   def switching_store(path_store_map) when is_map(path_store_map) do
     Map.values(path_store_map)
     |> Enum.each(&is_storage!/1)
@@ -43,6 +43,12 @@ defmodule StorageCombinators.Impl.SwitchingStore do
 
   alias __MODULE__
 
+  @spec update_substore(
+          StorageCombinators.Impl.SwitchingStore.t(),
+          impl_storage(),
+          Reference.impl_reference()
+        ) ::
+          StorageCombinators.Impl.SwitchingStore.t()
   @doc """
   Updates a substore inside a SwitchingStore.
   """
