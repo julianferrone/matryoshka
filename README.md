@@ -39,6 +39,7 @@ The business logic of different stores and store combinators is found under /lib
 | Store Struct | Function | Explanation | Store Combinator? | Wrapped stores |
 | --- | --- | --- | --- | --- |
 | CachingStore | `caching_store/1`, `caching_store/2` | Directs storage calls to a fast cache store (on all calls) and a slow main store (always on put / delete, only if not available in fast cache store on get / fetch). | ✅ | Takes 2 underlying stores |
+| FilesystemStore | `filesystem_store/1` | Persists values as files on disk, using the reference path as a relative path to the given root directory. Each reference is mapped to a different file. | | ❌ | N/A |
 | LoggingStore | `logging_store/1` | Logs all storage calls | ✅ | Takes 1 underlying store  |
 | MapStore | `map_store/0`, `map_store/1` | Provides a Map-backed store | ❌ | N/A |
 | MappingStore | `mapping_store/2` | Applies functions to the reference path, items on retrieval, and items on storage. | ✅ | Takes 1 underlying store | 
@@ -49,7 +50,7 @@ Of these, PassThrough is useless, and is provided only to compare with the PassT
 
 ## To-Do
 
-- [ ] Add FileStore as file-system based storage
+- [x] Add FilesystemStore as file-system based storage
 - [ ] Add JsonStore and XmlStore as specialisations of MappingStore
 - [ ] Add patch functionality
   - This will probably only be allowed for certain values like JSON or XML, using RFC 6902 JSON Patch and RFC 5261 XML Patch Operations 

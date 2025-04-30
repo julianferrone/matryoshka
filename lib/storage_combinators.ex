@@ -1,6 +1,7 @@
 defmodule StorageCombinators do
   # Implementation logic
   alias StorageCombinators.Impl.CachingStore
+  alias StorageCombinators.Impl.FilesystemStore
   alias StorageCombinators.Impl.LoggingStore
   alias StorageCombinators.Impl.MapStore
   alias StorageCombinators.Impl.MappingStore
@@ -116,6 +117,20 @@ defmodule StorageCombinators do
   the required Storage protocol.
   """
   defdelegate caching_store(main_store, fast_store), to: CachingStore
+
+  @doc """
+  Creates a new `%FilesystemStore{}` rooted at the given directory.
+
+  All reference paths used by this store will be resolved relative to this
+  root directory. The path should be a valid absolute or relative path on
+  the filesystem.
+
+  ## Examples
+
+      iex> store = FilesystemStore.filesystem_store("/tmp/storage")
+
+  """
+  defdelegate filesystem_store(root_dir), to: FilesystemStore
 
   @doc """
   Wraps a store with logging functionality.
