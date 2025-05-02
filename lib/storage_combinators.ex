@@ -127,7 +127,7 @@ defmodule StorageCombinators do
 
   ## Examples
 
-      iex> store = FilesystemStore.filesystem_store("/tmp/storage")
+      store = filesystem_store("/tmp/storage")
 
   """
   defdelegate filesystem_store(root_dir), to: FilesystemStore

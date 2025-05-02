@@ -12,7 +12,9 @@ defmodule StorageCombinators.Impl.FilesystemStore do
 
   You can create a new `FilesystemStore` by calling:
 
-      iex> store = FilesystemStore.filesystem_store("/tmp/storage")
+      store = StorageCombinators.Impl.FilesystemStore.filesystem_store(
+        "/tmp/storage"
+      )
 
   Operations like `get`, `put`, `fetch`, and `delete` will resolve paths
   relative to this root directory, using the reference's `path_segments()`.
@@ -37,7 +39,7 @@ defmodule StorageCombinators.Impl.FilesystemStore do
 
   ## Example
 
-      store = FilesystemStore.filesystem_store("/tmp/example")
+      store = StorageCombinators.Impl.FilesystemStore.filesystem_store("/tmp/example")
       ref = Reference.from_path("posts/hello")
       store = Storage.put(store, ref, "Hello, filesystem!")
       {_store, value} = Storage.fetch(store, ref)
@@ -70,7 +72,7 @@ defmodule StorageCombinators.Impl.FilesystemStore do
 
   ## Examples
 
-      iex> store = FilesystemStore.filesystem_store("/tmp/storage")
+      store = FilesystemStore.filesystem_store("/tmp/storage")
 
   """
   @spec filesystem_store(Path.t()) :: t()
@@ -90,15 +92,15 @@ defmodule StorageCombinators.Impl.FilesystemStore do
 
   ## Examples
 
-      iex> store = FilesystemStore.filesystem_store("/tmp/storage")
-      iex> ref = Reference.from_path("users/alice/bio")
-      iex> FilesystemStore.absolute_path(store, ref)
+      store = FilesystemStore.filesystem_store("/tmp/storage")
+      ref = Reference.from_path("users/alice/bio")
+      FilesystemStore.absolute_path(store, ref)
       "/tmp/storage/users/alice/bio"
 
   """
   @spec absolute_path(t(), Reference.t()) :: Path.t()
   def absolute_path(store, ref) do
-    path_segments = [store.root_dir | ref.path_segments()]
+    path_segments = [store.root_dir | Reference.path_segments(ref)]
     Path.join(path_segments)
   end
 
@@ -125,12 +127,11 @@ defmodule StorageCombinators.Impl.FilesystemStore do
       end
     end
 
-    def put(store, ref, value) do
+    def put(store, ref, value) when is_binary(value) do
       path = FilesystemStore.absolute_path(store, ref)
       parent_dir = Path.dirname(path)
-
-      _parent = File.mkdir_p(parent_dir)
-      _write = File.write(path, value)
+      File.mkdir_p(parent_dir)
+      File.write(path, value)
 
       store
     end
