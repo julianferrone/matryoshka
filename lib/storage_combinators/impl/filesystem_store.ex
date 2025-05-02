@@ -25,6 +25,12 @@ defmodule StorageCombinators.Impl.FilesystemStore do
 
       /tmp/storage/users/alice/bio
 
+  The FilesystemStore only ever returns String values, and can only be used
+  to insert String values, as it performs no mapping of objects to Strings
+  before storing the data. If you want to insert arbitrary data, it needs
+  to be composed as the inner store of a MappingStore which takes care of
+  serialization/deserialization.
+
   ## Behavior
 
   Implements the `StorageCombinators.Storage` protocol:
