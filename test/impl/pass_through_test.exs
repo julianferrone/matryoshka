@@ -1,7 +1,7 @@
-defmodule StorageCombinatorsTest.Impl.PassThroughTest do
-  alias StorageCombinators.Impl.PassThrough
-  alias StorageCombinators.Impl.MapStore
-  alias StorageCombinators.Storage
+defmodule MatryoshkaTest.Impl.PassThroughTest do
+  alias Matryoshka.Impl.PassThrough
+  alias Matryoshka.Impl.MapStore
+  alias Matryoshka.Storage
 
   use ExUnit.Case, async: true
   doctest PassThrough

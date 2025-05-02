@@ -1,11 +1,11 @@
-defmodule StorageCombinators.Impl.LoggingStore do
-  import StorageCombinators.Assert, only: [is_storage!: 1]
+defmodule Matryoshka.Impl.LoggingStore do
+  import Matryoshka.Assert, only: [is_storage!: 1]
 
   @enforce_keys [:inner]
   defstruct [:inner]
 
   @typedoc """
-  A struct that implements the StorageCombinators.Storage protocol.
+  A struct that implements the Matryoshka.Storage protocol.
   """
   require Logger
   @type impl_storage :: any()
@@ -21,16 +21,16 @@ defmodule StorageCombinators.Impl.LoggingStore do
 
   alias __MODULE__
 
-  defimpl StorageCombinators.Storage do
+  defimpl Matryoshka.Storage do
     def fetch(%LoggingStore{inner: inner} = store, ref) do
-      {inner, value} = StorageCombinators.Storage.fetch(inner, ref)
+      {inner, value} = Matryoshka.Storage.fetch(inner, ref)
       Logger.info("FETCH #{inspect(ref)} => #{inspect(value)}")
       store = %{store | inner: inner}
       {store, value}
     end
 
     def get(%LoggingStore{inner: inner} = store, ref) do
-      {inner, value} = StorageCombinators.Storage.get(inner, ref)
+      {inner, value} = Matryoshka.Storage.get(inner, ref)
       Logger.info("GET #{inspect(ref)} => #{inspect(value)}")
       store = %{store | inner: inner}
       {store, value}
@@ -38,13 +38,13 @@ defmodule StorageCombinators.Impl.LoggingStore do
 
     def put(%LoggingStore{inner: inner}, ref, value) do
       Logger.info("PUT #{inspect(ref)} <= #{inspect(value)}")
-      inner = StorageCombinators.Storage.put(inner, ref, value)
+      inner = Matryoshka.Storage.put(inner, ref, value)
       LoggingStore.logging_store(inner)
     end
 
     def delete(%LoggingStore{inner: inner}, ref) do
       Logger.info("DELETE #{inspect(ref)}")
-      inner = StorageCombinators.Storage.delete(inner, ref)
+      inner = Matryoshka.Storage.delete(inner, ref)
       LoggingStore.logging_store(inner)
     end
   end

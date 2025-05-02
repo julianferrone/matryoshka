@@ -1,5 +1,5 @@
-defmodule StorageCombinators.Assert do
-  alias StorageCombinators.Storage
+defmodule Matryoshka.Assert do
+  alias Matryoshka.Storage
 
   @doc """
   Assert that the provided storage struct implements the Storage protocol.

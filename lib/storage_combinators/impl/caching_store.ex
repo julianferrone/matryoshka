@@ -1,13 +1,13 @@
-defmodule StorageCombinators.Impl.CachingStore do
-  alias StorageCombinators.Storage
-  import StorageCombinators.Impl.MapStore, only: [map_store: 0]
-  import StorageCombinators.Assert, only: [is_storage!: 1]
+defmodule Matryoshka.Impl.CachingStore do
+  alias Matryoshka.Storage
+  import Matryoshka.Impl.MapStore, only: [map_store: 0]
+  import Matryoshka.Assert, only: [is_storage!: 1]
 
   @enforce_keys [:main_store, :fast_store]
   defstruct [:main_store, :fast_store]
 
   @typedoc """
-  A struct that implements the StorageCombinators.Storage protocol.
+  A struct that implements the Matryoshka.Storage protocol.
   """
   @type impl_storage :: any()
 

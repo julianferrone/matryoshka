@@ -1,15 +1,15 @@
-defmodule StorageCombinators do
+defmodule Matryoshka do
   # Implementation logic
-  alias StorageCombinators.Impl.CachingStore
-  alias StorageCombinators.Impl.FilesystemStore
-  alias StorageCombinators.Impl.LoggingStore
-  alias StorageCombinators.Impl.MapStore
-  alias StorageCombinators.Impl.MappingStore
-  alias StorageCombinators.Impl.PassThrough
-  alias StorageCombinators.Impl.SwitchingStore
+  alias Matryoshka.Impl.CachingStore
+  alias Matryoshka.Impl.FilesystemStore
+  alias Matryoshka.Impl.LoggingStore
+  alias Matryoshka.Impl.MapStore
+  alias Matryoshka.Impl.MappingStore
+  alias Matryoshka.Impl.PassThrough
+  alias Matryoshka.Impl.SwitchingStore
 
   # Client to interact with store
-  alias StorageCombinators.Client
+  alias Matryoshka.Client
 
   @doc """
   Starts the storage server from a provided store.
@@ -80,7 +80,7 @@ defmodule StorageCombinators do
   ## Parameters
 
     * `main_store` - The primary storage module or instance that acts as the
-      source of truth. Must implement the `StorageCombinators.Storage` protocol.
+      source of truth. Must implement the `Matryoshka.Storage` protocol.
 
   ## Returns
 
@@ -101,9 +101,9 @@ defmodule StorageCombinators do
   ## Parameters
 
     * `main_store` - The primary store holding the authoritative data.
-      Must implement the `StorageCombinators.Storage` protocol.
+      Must implement the `Matryoshka.Storage` protocol.
     * `fast_store` - A secondary, faster-access store used for caching
-      lookups. Must also implement the `StorageCombinators.Storage`
+      lookups. Must also implement the `Matryoshka.Storage`
       protocol.
 
   ## Returns
@@ -141,7 +141,7 @@ defmodule StorageCombinators do
   ## Parameters
 
     * `storage` - The underlying storage to wrap. Must implement the
-      `StorageCombinators.Storage` protocol.
+      `Matryoshka.Storage` protocol.
 
   ## Returns
 
@@ -150,7 +150,7 @@ defmodule StorageCombinators do
   ## Raises
 
   Raises an error if `storage` does not implement the required
-  `StorageCombinators.Storage` protocol.
+  `Matryoshka.Storage` protocol.
   """
   defdelegate logging_store(store), to: LoggingStore
 
@@ -182,7 +182,7 @@ defmodule StorageCombinators do
   ## Parameters
 
   * `inner` - The underlying store module or instance to wrap. Must implement
-    the `StorageCombinators.Storage` protocol.
+    the `Matryoshka.Storage` protocol.
   * `opts` - (keyword list) Optional settings:
 
     * `:map_to_store` - (function) A function `(value -> stored_value)` that
@@ -207,7 +207,7 @@ defmodule StorageCombinators do
 
   ## Parameters
 
-    * `storage` — A struct implementing the `StorageCombinators.Storage`
+    * `storage` — A struct implementing the `Matryoshka.Storage`
     protocol.
 
   ## Returns
@@ -228,7 +228,7 @@ defmodule StorageCombinators do
 
   * `path_store_map` — A map where keys are `String.t()` representing the
     first path segment, and values are storages implementing the
-    `StorageCombinators.Storage` protocol.
+    `Matryoshka.Storage` protocol.
   """
   defdelegate switching_store(path_store_map), to: SwitchingStore
 end

@@ -1,7 +1,7 @@
-defmodule StorageCombinatorsTest.Impl.MappingStoreTest do
-  alias StorageCombinators.Impl.MapStore
-  alias StorageCombinators.Impl.MappingStore
-  alias StorageCombinators.Storage
+defmodule MatryoshkaTest.Impl.MappingStoreTest do
+  alias Matryoshka.Impl.MapStore
+  alias Matryoshka.Impl.MappingStore
+  alias Matryoshka.Storage
 
   use ExUnit.Case, async: true
   doctest MappingStore

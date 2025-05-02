@@ -1,5 +1,5 @@
-defmodule StorageCombinators.Impl.MappingStore do
-  import StorageCombinators.Assert, only: [is_storage!: 1]
+defmodule Matryoshka.Impl.MappingStore do
+  import Matryoshka.Assert, only: [is_storage!: 1]
 
   @enforce_keys [:inner]
   defstruct [
@@ -10,13 +10,13 @@ defmodule StorageCombinators.Impl.MappingStore do
   ]
 
   @typedoc """
-  A struct that implements the StorageCombinators.Storage protocol.
+  A struct that implements the Matryoshka.Storage protocol.
   """
   @type impl_storage :: any()
 
   @type t :: %__MODULE__{
           inner: impl_storage,
-          map_ref: (StorageCombinators.Reference -> StorageCombinators.Reference),
+          map_ref: (Matryoshka.Reference -> Matryoshka.Reference),
           map_retrieved: (any() -> any()),
           map_to_store: (any() -> any())
         }
@@ -33,7 +33,7 @@ defmodule StorageCombinators.Impl.MappingStore do
   ## Parameters
 
   * `inner` - The underlying store module or instance to wrap. Must implement
-    the `StorageCombinators.Storage` protocol.
+    the `Matryoshka.Storage` protocol.
   * `opts` - (keyword list) Optional settings:
 
     * `:map_to_store` - (function) A function `(value -> stored_value)` that
@@ -52,9 +52,9 @@ defmodule StorageCombinators.Impl.MappingStore do
 
   Imports:
 
-      iex> alias StorageCombinators.Storage
-      iex> alias StorageCombinators.Impl.MapStore
-      iex> alias StorageCombinators.Impl.MappingStore
+      iex> alias Matryoshka.Storage
+      iex> alias Matryoshka.Impl.MapStore
+      iex> alias Matryoshka.Impl.MappingStore
 
   Mapping value with function when putting the value:
 
@@ -102,11 +102,11 @@ defmodule StorageCombinators.Impl.MappingStore do
 
   alias __MODULE__
 
-  defimpl StorageCombinators.Storage do
-    @spec fetch(MappingStore.t(), StorageCombinators.Reference) :: any()
+  defimpl Matryoshka.Storage do
+    @spec fetch(MappingStore.t(), Matryoshka.Reference) :: any()
     def fetch(store, ref) do
       {inner_new, value} =
-        StorageCombinators.Storage.fetch(
+        Matryoshka.Storage.fetch(
           store.inner,
           store.map_ref.(ref)
         )
@@ -123,7 +123,7 @@ defmodule StorageCombinators.Impl.MappingStore do
     end
 
     def get(store, ref) do
-      {inner_new, value} = StorageCombinators.Storage.get(store.inner, store.map_ref.(ref))
+      {inner_new, value} = Matryoshka.Storage.get(store.inner, store.map_ref.(ref))
 
       store_new = %{store | inner: inner_new}
 
@@ -138,7 +138,7 @@ defmodule StorageCombinators.Impl.MappingStore do
 
     def put(store, ref, value) do
       inner_new =
-        StorageCombinators.Storage.put(
+        Matryoshka.Storage.put(
           store.inner,
           store.map_ref.(ref),
           store.map_to_store.(value)
@@ -148,7 +148,7 @@ defmodule StorageCombinators.Impl.MappingStore do
     end
 
     def delete(store, ref) do
-      inner_new = StorageCombinators.Storage.delete(store.inner, store.map_ref.(ref))
+      inner_new = Matryoshka.Storage.delete(store.inner, store.map_ref.(ref))
       %{store | inner: inner_new}
     end
   end

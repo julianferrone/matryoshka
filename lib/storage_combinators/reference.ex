@@ -1,6 +1,6 @@
-defprotocol StorageCombinators.Reference do
+defprotocol Matryoshka.Reference do
   @typedoc """
-  A type that implements the StorageCombinators.Reference protocol.
+  A type that implements the Matryoshka.Reference protocol.
   """
   @type impl_reference :: any
 
@@ -11,13 +11,13 @@ defprotocol StorageCombinators.Reference do
   def path_segments(reference)
 end
 
-defimpl StorageCombinators.Reference, for: BitString do
+defimpl Matryoshka.Reference, for: BitString do
   def path_segments(reference) do
     String.split(reference, "/")
   end
 end
 
-defimpl StorageCombinators.Reference, for: Atom do
+defimpl Matryoshka.Reference, for: Atom do
   def path_segments(reference) do
     [Atom.to_string(reference)]
   end

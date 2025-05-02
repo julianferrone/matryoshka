@@ -1,7 +1,7 @@
-defmodule StorageCombinatorsTest.Impl.CachingStoreTest do
-  alias StorageCombinators.Impl.CachingStore
-  alias StorageCombinators.Impl.MapStore
-  alias StorageCombinators.Storage
+defmodule MatryoshkaTest.Impl.CachingStoreTest do
+  alias Matryoshka.Impl.CachingStore
+  alias Matryoshka.Impl.MapStore
+  alias Matryoshka.Storage
 
   use ExUnit.Case, async: true
   doctest CachingStore

@@ -1,4 +1,4 @@
-defmodule StorageCombinators.Impl.MapStore do
+defmodule Matryoshka.Impl.MapStore do
   @enforce_keys [:map]
   defstruct [:map]
 
@@ -11,7 +11,7 @@ defmodule StorageCombinators.Impl.MapStore do
 
   ## Examples
       iex> MapStore.map_store()
-      %StorageCombinators.Impl.MapStore{map: %{}}
+      %Matryoshka.Impl.MapStore{map: %{}}
 
       iex> store = MapStore.map_store()
       iex> store = Storage.put(store, "one", :one)
@@ -24,7 +24,7 @@ defmodule StorageCombinators.Impl.MapStore do
 
   alias __MODULE__
 
-  defimpl StorageCombinators.Storage do
+  defimpl Matryoshka.Storage do
     def fetch(%MapStore{map: map} = store, ref) do
       value =
         case Map.fetch(map, ref) do

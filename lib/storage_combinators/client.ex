@@ -1,8 +1,8 @@
-defmodule StorageCombinators.Client do
+defmodule Matryoshka.Client do
   @moduledoc """
   """
 
-  @server StorageCombinators.Server
+  @server Matryoshka.Server
 
   @type value :: any()
 
@@ -11,7 +11,7 @@ defmodule StorageCombinators.Client do
 
   ## Examples
 
-      iex> alias StorageCombinators.Impl.MapStore
+      iex> alias Matryoshka.Impl.MapStore
       iex> {:ok, client} = MapStore.map_store() |> start_link()
       iex> client.put("item", :item)
       iex> client.get("item")
@@ -26,7 +26,7 @@ defmodule StorageCombinators.Client do
 
   ## Examples
 
-      iex> {:ok, client} = StorageCombinators.Impl.MapStore.map_store() |> StorageCombinators.Client.start_link()
+      iex> {:ok, client} = Matryoshka.Impl.MapStore.map_store() |> Matryoshka.Client.start_link()
       iex> client.put("item", :item)
       iex> client.get("item")
       :item

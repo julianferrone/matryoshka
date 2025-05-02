@@ -1,8 +1,8 @@
-defmodule StorageCombinators.Server do
+defmodule Matryoshka.Server do
   use GenServer
 
-  alias StorageCombinators.Storage
-  import StorageCombinators.Assert, only: [is_storage!: 1]
+  alias Matryoshka.Storage
+  import Matryoshka.Assert, only: [is_storage!: 1]
 
   def start_link(default) do
     GenServer.start_link(__MODULE__, default, name: __MODULE__)

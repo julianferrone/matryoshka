@@ -1,6 +1,6 @@
-defmodule StorageCombinatorsTest.Impl.FilesystemStoreTest do
-  alias StorageCombinators.Storage
-  alias StorageCombinators.Impl.FilesystemStore
+defmodule MatryoshkaTest.Impl.FilesystemStoreTest do
+  alias Matryoshka.Storage
+  alias Matryoshka.Impl.FilesystemStore
 
   use ExUnit.Case, async: true
 

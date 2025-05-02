@@ -1,8 +1,8 @@
-defprotocol StorageCombinators.Storage do
-  alias StorageCombinators.Reference
+defprotocol Matryoshka.Storage do
+  alias Matryoshka.Reference
 
   @typedoc """
-  A type that implements the StorageCombinators.Storage protocol.
+  A type that implements the Matryoshka.Storage protocol.
   """
   @type store :: any
 

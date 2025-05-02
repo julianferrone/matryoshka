@@ -1,8 +1,8 @@
-defmodule StorageCombinatorsTest.IntegrationTest do
+defmodule MatryoshkaTest.IntegrationTest do
   use ExUnit.Case, async: true
 
-  import StorageCombinators
-  doctest StorageCombinators
+  import Matryoshka
+  doctest Matryoshka
 
   setup do
     {:ok, storage_server} = map_store() |> start_link

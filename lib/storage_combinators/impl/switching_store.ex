@@ -1,8 +1,8 @@
-defmodule StorageCombinators.Impl.SwitchingStore do
-  alias StorageCombinators.Impl.SwitchingStore
-  alias StorageCombinators.Reference
-  alias StorageCombinators.Storage
-  import StorageCombinators.Assert, only: [is_storage!: 1]
+defmodule Matryoshka.Impl.SwitchingStore do
+  alias Matryoshka.Impl.SwitchingStore
+  alias Matryoshka.Reference
+  alias Matryoshka.Storage
+  import Matryoshka.Assert, only: [is_storage!: 1]
 
   @enforce_keys [:path_store_map]
   defstruct @enforce_keys
@@ -47,11 +47,11 @@ defmodule StorageCombinators.Impl.SwitchingStore do
   alias __MODULE__
 
   @spec update_substore(
-          StorageCombinators.Impl.SwitchingStore.t(),
+          Matryoshka.Impl.SwitchingStore.t(),
           impl_storage(),
           Reference.impl_reference()
         ) ::
-          StorageCombinators.Impl.SwitchingStore.t()
+          Matryoshka.Impl.SwitchingStore.t()
   @doc """
   Updates a substore inside a SwitchingStore.
   """

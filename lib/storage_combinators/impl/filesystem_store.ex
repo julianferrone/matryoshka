@@ -1,6 +1,6 @@
-defmodule StorageCombinators.Impl.FilesystemStore do
+defmodule Matryoshka.Impl.FilesystemStore do
   @moduledoc """
-  A file-backed storage implementation for the `StorageCombinators.Storage`
+  A file-backed storage implementation for the `Matryoshka.Storage`
   protocol.
 
   This store persists values as files on disk, using the reference path
@@ -12,7 +12,7 @@ defmodule StorageCombinators.Impl.FilesystemStore do
 
   You can create a new `FilesystemStore` by calling:
 
-      store = StorageCombinators.Impl.FilesystemStore.filesystem_store(
+      store = Matryoshka.Impl.FilesystemStore.filesystem_store(
         "/tmp/storage"
       )
 
@@ -33,7 +33,7 @@ defmodule StorageCombinators.Impl.FilesystemStore do
 
   ## Behavior
 
-  Implements the `StorageCombinators.Storage` protocol:
+  Implements the `Matryoshka.Storage` protocol:
 
     * `fetch/2` reads the file and returns `{:ok, value}` or
       `{:error, {:no_ref, ref}}`
@@ -45,7 +45,7 @@ defmodule StorageCombinators.Impl.FilesystemStore do
 
   ## Example
 
-      store = StorageCombinators.Impl.FilesystemStore.filesystem_store("/tmp/example")
+      store = Matryoshka.Impl.FilesystemStore.filesystem_store("/tmp/example")
       ref = Reference.from_path("posts/hello")
       store = Storage.put(store, ref, "Hello, filesystem!")
       {_store, value} = Storage.fetch(store, ref)
@@ -53,8 +53,8 @@ defmodule StorageCombinators.Impl.FilesystemStore do
       {:ok, "Hello, filesystem!"}
 
   """
-  alias StorageCombinators.Reference
-  alias StorageCombinators.Storage
+  alias Matryoshka.Reference
+  alias Matryoshka.Storage
 
   @enforce_keys [:root_dir]
   defstruct @enforce_keys

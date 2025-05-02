@@ -1,7 +1,7 @@
-defmodule StorageCombinatorsTest.Impl.SwitchingStoreTest do
-  alias StorageCombinators.Impl.SwitchingStore
-  alias StorageCombinators.Impl.MapStore
-  alias StorageCombinators.Storage
+defmodule MatryoshkaTest.Impl.SwitchingStoreTest do
+  alias Matryoshka.Impl.SwitchingStore
+  alias Matryoshka.Impl.MapStore
+  alias Matryoshka.Storage
 
   use ExUnit.Case, async: true
   doctest SwitchingStore

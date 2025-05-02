@@ -1,15 +1,19 @@
-# StorageCombinators
+# Matryoshka
 
-StorageCombinators is an implementation in Elixir of the ideas about composable storage in (Weiher & Hirschfeld, 2019).
+Matryoshka is an implementation in Elixir of the ideas about composable storage in (Weiher & Hirschfeld, 2019).
 
 Any module that implements the Storage protocol (get, fetch, put, delete) is a **store**. Stores don't need to actually store data, but can compute it, as long as it implements the protocol.
 
 Some stores produce their results by adding behaviour on top of inner sub-stores. These are known as **storage combinators**.
 
-## Using StorageCombinators
+## Why "Matryoshka"?
+
+Because the stores nest inside each other like [Matryoshka dolls](https://en.wikipedia.org/wiki/Matryoshka_doll).
+
+## Using Matryoshka
 
 Stores and store combinators are composed together using the functions found 
-in the module **StorageCombinators**. After starting the server, the store can
+in the module **Matryoshka**. After starting the server, the store can
 be interacted with using the functions `get`, `put`, `fetch`, and `delete`.
 
 - `get(path)` returns the `value` at the given `path` if it exists, or `nil` if
@@ -25,7 +29,7 @@ be interacted with using the functions `get`, `put`, `fetch`, and `delete`.
   map_store()
   |> logging_store()
   # Initializing storage server
-  |> StorageCombinators.start_link()
+  |> Matryoshka.start_link()
 
 put("one", :item)
 get("one")

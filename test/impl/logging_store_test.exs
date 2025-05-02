@@ -1,10 +1,10 @@
-defmodule StorageCombinatorsTest.LoggingStoreTest do
+defmodule MatryoshkaTest.LoggingStoreTest do
   import ExUnit.CaptureLog
   require Logger
 
-  alias StorageCombinators.Impl.MapStore
-  alias StorageCombinators.Impl.LoggingStore
-  alias StorageCombinators.Storage
+  alias Matryoshka.Impl.MapStore
+  alias Matryoshka.Impl.LoggingStore
+  alias Matryoshka.Storage
 
   use ExUnit.Case, async: true
   doctest LoggingStore
