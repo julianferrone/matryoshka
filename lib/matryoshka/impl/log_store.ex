@@ -14,7 +14,7 @@ defmodule Matryoshka.Impl.LogStore do
 
   @type t :: %__MODULE__{
           log_filepath: Path.t(),
-          index: Map.t()
+          index: map()
         }
 
   def log_store(log_filepath) do
