@@ -13,9 +13,9 @@ defmodule Matryoshka.Impl.LogStore do
   defstruct @enforce_keys
 
   @type t :: %__MODULE__{
-    log_filepath: Path.t(),
-    index: Map.t()
-  }
+          log_filepath: Path.t(),
+          index: Map.t()
+        }
 
   def log_store(log_filepath) do
     %__MODULE__{log_filepath: log_filepath, index: Map.new()}
@@ -23,7 +23,7 @@ defmodule Matryoshka.Impl.LogStore do
 
   alias __MODULE__
 
-  def binary_timestamp(), do
+  def binary_timestamp() do
     System.system_time(:nanosecond)
     |> term_to_binary()
   end
@@ -51,24 +51,30 @@ defmodule Matryoshka.Impl.LogStore do
     def put(store, ref, value) do
       {key_size, key} = LogStore.pack_term(ref)
       {value_size, value} = LogStore.pack_term(value)
-      line = Enum.join([
-        term_to_binary(:w),
-        key_size,
-        value_size,
-        key,
-        value
-      ])
+
+      line =
+        Enum.join([
+          term_to_binary(:w),
+          key_size,
+          value_size,
+          key,
+          value
+        ])
+
       LogStore.write_log_line(store, line)
       store
     end
 
     def delete(store, ref, value) do
       {key_size, key} = LogStore.pack_term(ref)
-      line = Enum.join([
-        term_to_binary(:d),
-        key_size,
-        key,
-      ])
+
+      line =
+        Enum.join([
+          term_to_binary(:d),
+          key_size,
+          key
+        ])
+
       LogStore.write_log_line(store, line)
       store
     end
