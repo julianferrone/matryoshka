@@ -5,53 +5,66 @@ defmodule Matryoshka.Impl.LogStore do
 
   This store persists put and delete requests as logs on disk.
   """
-  alias Matryoshka.Reference
+  alias Matryoshka.Impl.LogStore.Deserialize
+  alias Matryoshka.Impl.LogStore.Serialize
   alias Matryoshka.Storage
 
-  @enforce_keys [:log_filepath, :index]
+  @enforce_keys [:reader, :writer, :index]
   defstruct @enforce_keys
 
   @type t :: %__MODULE__{
-          log_filepath: Path.t(),
+          reader: File.io_device(),
+          writer: File.io_device(),
           index: map()
         }
 
   def log_store(log_filepath) do
-    %__MODULE__{log_filepath: log_filepath, index: Map.new()}
+    {:ok, writer} = File.open(log_filepath, [:binary, :write])
+    {:ok, reader} = File.open(log_filepath, [:binary, :read])
+    %__MODULE__{reader: reader, writer: writer, index: Map.new()}
   end
 
-  alias __MODULE__
+  defimpl Storage do
+    def fetch(store, ref) do
+      {position, size} = Map.get(store.index, ref)
 
-  # defimpl Storage do
-  #   def put(store, ref, value) do
-  #     # {key_size, key} = LogStore.Serialize.pack_key(ref)
-  #     # {value_size, value} = LogStore.Serialize.pack_value(value)
+      case size do
+        nil -> {:error, {:no_ref, ref}}
 
-  #     # line =
-  #     #   Enum.join([
-  #     #     term_to_binary(:w),
-  #     #     key_size,
-  #     #     value_size,
-  #     #     key,
-  #     #     value
-  #     #   ])
+        nonzero ->
+          case Deserialize.get_value(store.reader, position, nonzero) do
+            {:ok, value} -> {:ok, value}
+            :eof -> {:error, :eof}
+            {:error, reason} -> {:error, reason}
+          end
+      end
+    end
 
-  #     # LogStore.Serialize.write_log_line(store, line)
-  #     # store
-  #   end
+    def get(store, ref) do
+      {position, size} = Map.get(store.index, ref)
 
-  #   def delete(store, ref) do
-  #     # {key_size, key} = LogStore.Serialize.pack_term(ref)
+      case size do
+        nil ->
+          nil
 
-  #     # line =
-  #     #   Enum.join([
-  #     #     term_to_binary(:d),
-  #     #     key_size,
-  #     #     key
-  #     #   ])
+        nonzero ->
+          case Deserialize.get_value(store.reader, position, nonzero) do
+            {:ok, value} -> value
+            _other -> nil
+          end
+      end
+    end
 
-  #     # LogStore.Serialize.write_log_line(store, line)
-  #     # store
-  #   end
-  # end
+    def put(store, ref, value) do
+      {position, size} = Serialize.append_write_log_line(store.writer, ref, value)
+      index = Map.put(store.index, ref, {position, size})
+      %{store | index: index}
+    end
+
+    def delete(store, ref) do
+      {position, size} = Serialize.append_delete_log_line(store.writer, ref)
+      index = Map.put(store.index, ref, {position, size})
+      %{store | index: index}
+    end
+  end
 end
