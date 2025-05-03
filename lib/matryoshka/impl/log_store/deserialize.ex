@@ -83,6 +83,8 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
 
   def bits_to_bytes(bits), do: div(bits, 8)
 
+  # .................. Reading Elixir types ..................
+
   def read_big_unsigned_integer(fd, int_size) do
     number_bytes = bits_to_bytes(int_size)
 
@@ -106,8 +108,25 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     )
   end
 
+  def read_timestamp(fd) do
+    timestamp_size = Encoding.timestamp_size()
+    timestamp_int = read_big_unsigned_integer(fd, timestamp_size)
+
+    handle_io_result(
+      timestamp_int,
+      fn ts ->
+        DateTime.from_unix(
+          ts,
+          Encoding.time_unit()
+        )
+      end
+    )
+  end
+
+  # .................... Reading Log Lines ...................
+
   def read_log_line(fd) do
-    _timestamp = read_big_unsigned_integer(fd, Encoding.timestamp_size())
+    _timestamp = read_timestamp(fd)
     line_kind = read_atom(fd)
     atom_write = Encoding.atom_write()
     atom_delete = Encoding.atom_delete()
