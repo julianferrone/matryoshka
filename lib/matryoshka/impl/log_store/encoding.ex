@@ -36,6 +36,7 @@ defmodule Matryoshka.Impl.LogStore.Encoding do
   def relative_offset(key_size) do
     Enum.sum([
       bits_to_bytes(@timestamp_bitsize),
+      atom_bytesize(),
       bits_to_bytes(@key_bitsize),
       key_size
     ])
