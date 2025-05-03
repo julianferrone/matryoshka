@@ -38,7 +38,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     case atom do
       ^atom_write -> parse_write_line(rest)
       ^atom_delete -> parse_delete_line(rest)
-      _ -> {:err, {:wrong_atom, atom}}
+      _ -> {:err, {:no_line_kind, atom}}
     end
   end
 
@@ -69,4 +69,60 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   end
 
   # ------------------ Reading from Log File -----------------
+
+  def bits_to_bytes(bits) do
+    bits / 8
+  end
+
+  def read_big_unsigned_integer(fd, int_size) do
+    number_bytes = bits_to_bytes(int_size)
+    bytes = IO.binread(fd, number_bytes)
+    <<int::big-unsigned-integer-size(int_size)>> = bytes
+    int
+  end
+
+  def read_atom(fd) do
+    atom_size = Encoding.atom_size()
+    bytes = IO.binread(fd, atom_size)
+    <<binary_atom::binary-size(atom_size)>> = bytes
+    binary_to_term(binary_atom)
+  end
+
+  def read_log_line(fd) do
+    _timestamp = read_big_unsigned_integer(fd, Encoding.timestamp_size())
+    line_kind = read_atom(fd)
+    atom_write = Encoding.atom_write()
+    atom_delete = Encoding.atom_delete()
+
+    case line_kind do
+      ^atom_write -> read_write_line(fd)
+      ^atom_delete -> read_delete_line(fd)
+      _ -> {:err, {:no_line_kind, line_kind}}
+    end
+  end
+
+  def read_write_line(fd) do
+    key_size = read_big_unsigned_integer(fd, Encoding.key_size())
+    value_size = read_big_unsigned_integer(fd, Encoding.value_size())
+
+    key =
+      IO.binread(fd, key_size)
+      |> binary_to_term()
+
+    value =
+      IO.binread(fd, value_size)
+      |> binary_to_term()
+
+    {:ok, {Encoding.atom_write(), key, value}}
+  end
+
+  def read_delete_line(fd) do
+    key_size = read_big_unsigned_integer(fd, Encoding.key_size())
+
+    key =
+      IO.binread(fd, key_size)
+      |> binary_to_term()
+
+    {:ok, {Encoding.atom_delete(), key}}
+  end
 end
