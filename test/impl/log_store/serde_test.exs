@@ -21,20 +21,23 @@ defmodule MatryoshkaTest.Impl.LogStore.SerdeTest do
     assert parsed == {:d, "key"}
   end
 
-  test "Index from log file gives full ", %{tmp_dir: tmp_dir} do
+  test "Can retrieve value from log file using index", %{tmp_dir: tmp_dir} do
     log_filepath = "#{tmp_dir}/test_1.log"
 
     with {:ok, file} <- File.open(log_filepath, [:binary, :write]) do
       Serialize.append_write_log_line(file, "one", "val_1")
-      Serialize.append_write_log_line(file, "two", "val_2")
+      Serialize.append_write_log_line(file, "two", "value_2")
     end
 
-    {index, final_position} = Deserialize.get_index(log_filepath)
+    {index, _final_position} = Deserialize.get_index(log_filepath)
     {one_offset, one_size} = Map.get(index, "one")
+    {two_offset, two_size} = Map.get(index, "two")
 
     with {:ok, file} <- File.open(log_filepath, [:binary, :read]) do
       {:ok, value} = Deserialize.get_value(file, one_offset, one_size)
       assert value == "val_1"
+      {:ok, value} = Deserialize.get_value(file, two_offset, two_size)
+      assert value == "value_1"
     end
   end
 end
