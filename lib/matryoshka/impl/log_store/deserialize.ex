@@ -108,17 +108,12 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
 
   def read_timestamp(fd) do
     timestamp_bitsize = Encoding.timestamp_bitsize()
-    timestamp_int = read_big_unsigned_integer(fd, timestamp_bitsize)
 
-    handle_io_result(
-      timestamp_int,
-      fn ts ->
-        DateTime.from_unix(
-          ts,
-          Encoding.time_unit()
-        )
-      end
-    )
+    with {:ok, timestamp_int} <- read_big_unsigned_integer(fd, timestamp_bitsize) do
+      DateTime.from_unix(timestamp_int, Encoding.time_unit())
+    else
+      other -> other
+    end
   end
 
   # -------------------- Reading Log Lines -------------------
@@ -140,10 +135,9 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   end
 
   def read_write_line(fd) do
-    key_size = read_big_unsigned_integer(fd, Encoding.key_bitsize())
-    value_size = read_big_unsigned_integer(fd, Encoding.value_bitsize())
-
-    with {:ok, key} <-
+    with {:ok, key_size} <- read_big_unsigned_integer(fd, Encoding.key_bitsize()),
+         {:ok, value_size} = read_big_unsigned_integer(fd, Encoding.value_bitsize()),
+         {:ok, key} <-
            binread_then_map(fd, key_size, &binary_to_term/1),
          {:ok, value} <-
            binread_then_map(fd, value_size, &binary_to_term/1) do
@@ -154,9 +148,8 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   end
 
   def read_delete_line(fd) do
-    key_size = read_big_unsigned_integer(fd, Encoding.key_bitsize())
-
-    with {:ok, key} <-
+    with {:ok, key_size} <- read_big_unsigned_integer(fd, Encoding.key_bitsize()),
+         {:ok, key} <-
            binread_then_map(fd, key_size, &binary_to_term/1) do
       {:ok, {Encoding.atom_delete(), key}}
     else
@@ -176,8 +169,11 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
          {:ok, {key, key_size, value_size}} <- load_offsets_line(fd, line_kind) do
       relative_offset_to_value =
         case value_size do
-          nil -> Encoding.relative_offset(key_size)
-          _nonzero -> Encoding.relative_offset(key_size) + Encoding.value_bitsize()
+          nil ->
+            Encoding.relative_offset(key_size)
+
+          _nonzero ->
+            Encoding.relative_offset(key_size) + Encoding.bits_to_bytes(Encoding.value_bitsize())
         end
 
       relative_offset_to_end =
@@ -186,10 +182,15 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
           value_size -> Encoding.relative_offset(key_size, value_size)
         end
 
-      value_offset = current_offset + relative_offset_to_value
+      value_offset =
+        current_offset + relative_offset_to_value
+
       offsets = Map.put(offsets, key, {value_offset, value_size})
 
-      absolute_offset = current_offset + relative_offset_to_end
+      absolute_offset =
+        current_offset + relative_offset_to_end
+
+      :file.position(fd, absolute_offset)
       load_offsets(fd, offsets, absolute_offset)
     else
       :eof -> {offsets, current_offset}
@@ -201,21 +202,21 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     atom_delete = Encoding.atom_delete()
 
     case line_kind do
-      {:ok, ^atom_write} -> load_offsets_write_line(fd)
-      {:ok, ^atom_delete} -> load_offsets_delete_line(fd)
-      {:ok, atom} -> {:error, {:no_lin_kind, atom}}
+      ^atom_write -> load_offsets_write_line(fd)
+      ^atom_delete -> load_offsets_delete_line(fd)
+      atom when is_atom(atom) -> {:error, {:no_lin_kind, atom}}
       other -> other
     end
   end
 
   def load_offsets_write_line(fd) do
-    key_size = read_big_unsigned_integer(fd, Encoding.key_bitsize())
-    value_size = read_big_unsigned_integer(fd, Encoding.value_bitsize())
-
-    binread_then_map(fd, key_size, fn key_bin ->
-      key = binary_to_term(key_bin)
-      {key, key_size, value_size}
-    end)
+    with {:ok, key_size} <- read_big_unsigned_integer(fd, Encoding.key_bitsize()),
+         {:ok, value_size} <- read_big_unsigned_integer(fd, Encoding.value_bitsize()) do
+      binread_then_map(fd, key_size, fn key_bin ->
+        key = binary_to_term(key_bin)
+        {key, key_size, value_size}
+      end)
+    end
   end
 
   def load_offsets_delete_line(fd) do
@@ -232,6 +233,16 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   def get_index(log_filepath) do
     with {:ok, file} <- File.open(log_filepath, [:binary, :read]) do
       load_offsets(file)
+    end
+  end
+
+  # ----------------- Read Value at Position -----------------
+
+  def get_value(fd, offset, size) do
+    with {:ok, bin} <- :file.pread(fd, offset, size) do
+      {:ok, binary_to_term(bin)}
+    else
+      other -> other
     end
   end
 end
