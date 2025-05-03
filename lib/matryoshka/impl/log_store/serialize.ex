@@ -1,12 +1,12 @@
 defmodule Matryoshka.Impl.LogStore.Serialize do
-  alias Matryoshka.Impl.LogStore.Sizes
+  alias Matryoshka.Impl.LogStore.Encoding
   import :erlang, only: [term_to_binary: 1]
 
   # ------------------------ Timestamp -----------------------
 
   def binary_timestamp() do
-    timestamp = System.system_time(Sizes.time_unit)
-    <<timestamp::big-unsigned-integer-size(Sizes.timestamp_size())>>
+    timestamp = System.system_time(Encoding.time_unit)
+    <<timestamp::big-unsigned-integer-size(Encoding.timestamp_size())>>
   end
 
   # ----------------------- Formatting -----------------------
@@ -46,9 +46,9 @@ defmodule Matryoshka.Impl.LogStore.Serialize do
     {size_data, binary}
   end
 
-  def pack_key(key), do: pack_term(key, Sizes.key_size())
+  def pack_key(key), do: pack_term(key, Encoding.key_size())
 
-  def pack_value(value), do: pack_term(value, Sizes.value_size())
+  def pack_value(value), do: pack_term(value, Encoding.value_size())
 
   # ------------------- Writing to Log File ------------------
 
