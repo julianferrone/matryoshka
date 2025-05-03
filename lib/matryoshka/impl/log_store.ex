@@ -23,10 +23,19 @@ defmodule Matryoshka.Impl.LogStore do
 
   alias __MODULE__
 
+  def binary_timestamp(), do
+    System.system_time(:nanosecond)
+    |> term_to_binary()
+  end
+
+  def format_log_line(data) when is_binary(data) do
+    timestamp = binary_timestamp()
+    timestamp <> data
+  end
+
   def write_log_line(store, data) when is_binary(data) do
     with {:ok, file} <- File.open(store.log_filepath, [:binary, :append]) do
-      timestamp = System.system_time(:nanosecond) |> term_to_binary()
-      line = timestamp <> data
+      line = format_log_line(data)
       IO.binwrite(file, line)
     end
   end
