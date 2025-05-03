@@ -76,13 +76,17 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   def handle_io_result({:error, reason}, _fun), do: {:error, reason}
   def handle_io_result(bytes, fun), do: {:ok, fun.(bytes)}
 
+  def binread_then_map(fd, number_bytes, fun) do
+    bytes = IO.binread(fd, number_bytes)
+    handle_io_result(bytes, fun)
+  end
+
   def bits_to_bytes(bits), do: div(bits, 8)
 
   def read_big_unsigned_integer(fd, int_size) do
     number_bytes = bits_to_bytes(int_size)
-    bytes = IO.binread(fd, number_bytes)
 
-    handle_io_result(bytes, fn bytes ->
+    binread_then_map(fd, number_bytes, fn bytes ->
       <<int::big-unsigned-integer-size(int_size)>> = bytes
       int
     end)
@@ -90,13 +94,16 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
 
   def read_atom(fd) do
     atom_size = Encoding.atom_size()
-    bytes = IO.binread(fd, atom_size)
 
-    handle_io_result(bytes, fn bytes ->
-      <<binary_atom::binary-size(atom_size)>> = bytes
-      atom = binary_to_term(binary_atom)
-      atom
-    end)
+    binread_then_map(
+      fd,
+      atom_size,
+      fn bytes ->
+        <<binary_atom::binary-size(atom_size)>> = bytes
+        atom = binary_to_term(binary_atom)
+        atom
+      end
+    )
   end
 
   def read_log_line(fd) do
@@ -118,15 +125,9 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     value_size = read_big_unsigned_integer(fd, Encoding.value_size())
 
     with {:ok, key} <-
-           handle_io_result(
-             IO.binread(fd, key_size),
-             &binary_to_term/1
-           ),
+           binread_then_map(fd, key_size, &binary_to_term/1),
          {:ok, value} <-
-           handle_io_result(
-             IO.binread(fd, value_size),
-             &binary_to_term/1
-           ) do
+           binread_then_map(fd, value_size, &binary_to_term/1) do
       {:ok, {Encoding.atom_write(), key, value}}
     else
       error -> error
@@ -137,10 +138,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     key_size = read_big_unsigned_integer(fd, Encoding.key_size())
 
     with {:ok, key} <-
-           handle_io_result(
-             IO.binread(fd, key_size),
-             &binary_to_term/1
-           ) do
+           binread_then_map(fd, key_size, &binary_to_term/1) do
       {:ok, {Encoding.atom_delete(), key}}
     else
       error -> error
