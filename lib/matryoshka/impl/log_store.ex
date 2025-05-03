@@ -23,14 +23,25 @@ defmodule Matryoshka.Impl.LogStore do
 
   alias __MODULE__
 
+  # Timestamps are stored in a 64-bit unsigned int
+  @timestamp_size 64
+  def timestamp_size, do: @timestamp_size
+
+  # Maximum key length is 2^16 bytes, ~66 kB
+  @key_size 16
+  def key_size, do: @key_size
+
+  # Maximum value length is 2^32 bytes, ~4.3 GB
+  @value_size 32
+  def value_size, do: @value_size
+
   defmodule Deserialize do
-    def
   end
 
   defmodule Serialize do
     def binary_timestamp() do
-      System.system_time(:nanosecond)
-      |> term_to_binary()
+      timestamp = System.system_time(:millisecond)
+      <<timestamp::big-unsigned-integer-size(LogStore.timestamp_size())>>
     end
 
     def format_log_line(data) when is_binary(data) do
@@ -45,18 +56,22 @@ defmodule Matryoshka.Impl.LogStore do
       end
     end
 
-    @spec pack_term(term()) :: {binary(), binary()}
-    def pack_term(term) do
+    @spec pack_term(term(), integer()) :: {binary(), binary()}
+    def pack_term(term, int_size) do
       binary = term |> term_to_binary()
-      size = binary |> byte_size() |> term_to_binary()
-      {size, binary}
+      size_data = <<byte_size(binary)::big-unsigned-integer-size(int_size)>>
+      {size_data, binary}
     end
+
+    def pack_key(key), do: pack_term(key, LogStore.key_size())
+
+    def pack_value(value), do: pack_term(value, LogStore.value_size())
   end
 
   defimpl Storage do
     def put(store, ref, value) do
-      {key_size, key} = LogStore.Serialize.pack_term(ref)
-      {value_size, value} = LogStore.Serialize.pack_term(value)
+      {key_size, key} = LogStore.Serialize.pack_key(ref)
+      {value_size, value} = LogStore.Serialize.pack_value(value)
 
       line =
         Enum.join([
