@@ -5,31 +5,31 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   # -------------------- Parsing Binaries --------------------
 
   def parse_timestamp(bin_timestamp) do
-    timestamp_size = Encoding.timestamp_size()
-    <<int_timestamp::big-unsigned-integer-size(timestamp_size)>> = bin_timestamp
+    timestamp_bits = Encoding.timestamp_bits()
+    <<int_timestamp::big-unsigned-integer-size(timestamp_bits)>> = bin_timestamp
     DateTime.from_unix(int_timestamp, Encoding.time_unit())
   end
 
   def parse_key_size(bin_key_size) do
-    key_size = Encoding.key_size()
-    <<int_key_size::big-unsigned-integer-size(key_size)>> = bin_key_size
+    key_bitsize = Encoding.key_bitsize()
+    <<int_key_size::big-unsigned-integer-size(key_bitsize)>> = bin_key_size
     int_key_size
   end
 
   def parse_value_size(bin_value_size) do
-    value_size = Encoding.value_size()
-    <<int_value_size::big-unsigned-integer-size(value_size)>> = bin_value_size
+    value_bitsize = Encoding.value_bitsize()
+    <<int_value_size::big-unsigned-integer-size(value_bitsize)>> = bin_value_size
     int_value_size
   end
 
   # -------------------- Parse Whole Line --------------------
 
   def parse_log_line(line) do
-    timestamp_size = Encoding.timestamp_size()
-    atom_size = Encoding.atom_size()
+    timestamp_bits = Encoding.timestamp_bits()
+    atom_bytesize = Encoding.atom_bytesize()
 
-    <<_timestamp::big-unsigned-integer-size(timestamp_size), rest::binary>> = line
-    <<binary_atom::binary-size(atom_size), rest::binary>> = rest
+    <<_timestamp::big-unsigned-integer-size(timestamp_bits), rest::binary>> = line
+    <<binary_atom::binary-size(atom_bytesize), rest::binary>> = rest
 
     atom = binary_to_term(binary_atom)
     atom_write = Encoding.atom_write()
@@ -43,11 +43,11 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   end
 
   def parse_write_line(line) do
-    key_size = Encoding.key_size()
-    value_size = Encoding.value_size()
+    key_bitsize = Encoding.key_bitsize()
+    value_bitsize = Encoding.value_bitsize()
 
-    <<int_key_size::big-unsigned-integer-size(key_size), rest::binary>> = line
-    <<int_value_size::big-unsigned-integer-size(value_size), rest::binary>> = rest
+    <<int_key_size::big-unsigned-integer-size(key_bitsize), rest::binary>> = line
+    <<int_value_size::big-unsigned-integer-size(value_bitsize), rest::binary>> = rest
 
     <<bin_key::binary-size(int_key_size), rest::binary>> = rest
     <<bin_value::binary-size(int_value_size), _rest::binary>> = rest
@@ -58,9 +58,9 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   end
 
   def parse_delete_line(line) do
-    key_size = Encoding.key_size()
+    key_bitsize = Encoding.key_bitsize()
 
-    <<int_key_size::big-unsigned-integer-size(key_size), rest::binary>> = line
+    <<int_key_size::big-unsigned-integer-size(key_bitsize), rest::binary>> = line
 
     <<bin_key::binary-size(int_key_size), _rest::binary>> = rest
 
@@ -93,7 +93,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   end
 
   def read_atom(fd) do
-    atom_size = Encoding.atom_size()
+    atom_bits = Encoding.atom_size()
 
     binread_then_map(
       fd,
@@ -107,7 +107,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   end
 
   def read_timestamp(fd) do
-    timestamp_size = Encoding.timestamp_size()
+    timestamp_bits = Encoding.timestamp_bits()
     timestamp_int = read_big_unsigned_integer(fd, timestamp_size)
 
     handle_io_result(
@@ -138,8 +138,8 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   end
 
   def read_write_line(fd) do
-    key_size = read_big_unsigned_integer(fd, Encoding.key_size())
-    value_size = read_big_unsigned_integer(fd, Encoding.value_size())
+    key_size = read_big_unsigned_integer(fd, Encoding.key_bitsize())
+    value_size = read_big_unsigned_integer(fd, Encoding.value_bitsize())
 
     with {:ok, key} <-
            binread_then_map(fd, key_size, &binary_to_term/1),
@@ -152,7 +152,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   end
 
   def read_delete_line(fd) do
-    key_size = read_big_unsigned_integer(fd, Encoding.key_size())
+    key_size = read_big_unsigned_integer(fd, Encoding.key_bitsize())
 
     with {:ok, key} <-
            binread_then_map(fd, key_size, &binary_to_term/1) do

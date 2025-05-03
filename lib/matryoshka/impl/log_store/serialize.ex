@@ -6,7 +6,7 @@ defmodule Matryoshka.Impl.LogStore.Serialize do
 
   def binary_timestamp() do
     timestamp = System.system_time(Encoding.time_unit())
-    <<timestamp::big-unsigned-integer-size(Encoding.timestamp_size())>>
+    <<timestamp::big-unsigned-integer-size(Encoding.timestamp_bits())>>
   end
 
   # ----------------------- Formatting -----------------------
@@ -24,14 +24,7 @@ defmodule Matryoshka.Impl.LogStore.Serialize do
         value
       ])
 
-    relative_offset =
-      Enum.sum([
-        Encoding.bits_to_bytes(Encoding.timestamp_size()),
-        Encoding.bits_to_bytes(Encoding.key_size()),
-        Encoding.bits_to_bytes(Encoding.value_size()),
-        key_size,
-        value_size
-      ])
+    relative_offset = Encoding.relative_offset(key_size, value_size)
 
     {prepend_timestamp(line), relative_offset}
   end
@@ -46,12 +39,7 @@ defmodule Matryoshka.Impl.LogStore.Serialize do
         key
       ])
 
-    relative_offset =
-      Enum.sum([
-        Encoding.bits_to_bytes(Encoding.timestamp_size()),
-        Encoding.bits_to_bytes(Encoding.key_size()),
-        key_size
-      ])
+    relative_offset = Encoding.relative_offset(key_size)
 
     {prepend_timestamp(line), relative_offset}
   end
@@ -69,16 +57,21 @@ defmodule Matryoshka.Impl.LogStore.Serialize do
     {size, size_data, binary}
   end
 
-  def pack_key(key), do: pack_term(key, Encoding.key_size())
+  def pack_key(key), do: pack_term(key, Encoding.key_bitsize())
 
-  def pack_value(value), do: pack_term(value, Encoding.value_size())
+  def pack_value(value), do: pack_term(value, Encoding.value_bitsize())
 
   # ------------------- Writing to Log File ------------------
 
-  # def write_log_line(store, data) when is_binary(data) do
-  #   with {:ok, file} <- File.open(store.log_filepath, [:binary, :append]) do
-  #     line = prepend_timestamp(data)
-  #     IO.binwrite(file, line)
-  #   end
-  # end
+  def append_write_log_line(fd, key, value) do
+    {line, relative_offset} = format_write_log_line(key, value)
+    IO.binwrite(fd, line)
+    relative_offset
+  end
+
+  def append_delete_log_line(fd, key) do
+    {line, relative_offset} = format_delete_log_line(key)
+    IO.binwrite(fd, line)
+    relative_offset
+  end
 end
