@@ -70,22 +70,33 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
 
   # ------------------ Reading from Log File -----------------
 
-  def bits_to_bytes(bits) do
-    bits / 8
-  end
+  # ....................... IO Helpers .......................
+
+  def handle_io_result(:eof, _fun), do: :eof
+  def handle_io_result({:error, reason}, _fun), do: {:error, reason}
+  def handle_io_result(bytes, fun), do: {:ok, fun.(bytes)}
+
+  def bits_to_bytes(bits), do: div(bits, 8)
 
   def read_big_unsigned_integer(fd, int_size) do
     number_bytes = bits_to_bytes(int_size)
     bytes = IO.binread(fd, number_bytes)
-    <<int::big-unsigned-integer-size(int_size)>> = bytes
-    int
+
+    handle_io_result(bytes, fn bytes ->
+      <<int::big-unsigned-integer-size(int_size)>> = bytes
+      int
+    end)
   end
 
   def read_atom(fd) do
     atom_size = Encoding.atom_size()
     bytes = IO.binread(fd, atom_size)
-    <<binary_atom::binary-size(atom_size)>> = bytes
-    binary_to_term(binary_atom)
+
+    handle_io_result(bytes, fn bytes ->
+      <<binary_atom::binary-size(atom_size)>> = bytes
+      atom = binary_to_term(binary_atom)
+      atom
+    end)
   end
 
   def read_log_line(fd) do
@@ -95,9 +106,10 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     atom_delete = Encoding.atom_delete()
 
     case line_kind do
-      ^atom_write -> read_write_line(fd)
-      ^atom_delete -> read_delete_line(fd)
-      _ -> {:err, {:no_line_kind, line_kind}}
+      {:ok, ^atom_write} -> read_write_line(fd)
+      {:ok, ^atom_delete} -> read_delete_line(fd)
+      {:ok, atom} -> {:erro, {:no_line_kind, atom}}
+      other -> other
     end
   end
 
@@ -105,24 +117,33 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     key_size = read_big_unsigned_integer(fd, Encoding.key_size())
     value_size = read_big_unsigned_integer(fd, Encoding.value_size())
 
-    key =
-      IO.binread(fd, key_size)
-      |> binary_to_term()
-
-    value =
-      IO.binread(fd, value_size)
-      |> binary_to_term()
-
-    {:ok, {Encoding.atom_write(), key, value}}
+    with {:ok, key} <-
+           handle_io_result(
+             IO.binread(fd, key_size),
+             &binary_to_term/1
+           ),
+         {:ok, value} <-
+           handle_io_result(
+             IO.binread(fd, value_size),
+             &binary_to_term/1
+           ) do
+      {:ok, {Encoding.atom_write(), key, value}}
+    else
+      error -> error
+    end
   end
 
   def read_delete_line(fd) do
     key_size = read_big_unsigned_integer(fd, Encoding.key_size())
 
-    key =
-      IO.binread(fd, key_size)
-      |> binary_to_term()
-
-    {:ok, {Encoding.atom_delete(), key}}
+    with {:ok, key} <-
+           handle_io_result(
+             IO.binread(fd, key_size),
+             &binary_to_term/1
+           ) do
+      {:ok, {Encoding.atom_delete(), key}}
+    else
+      error -> error
+    end
   end
 end
