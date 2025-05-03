@@ -5,8 +5,8 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   # -------------------- Parsing Binaries --------------------
 
   def parse_timestamp(bin_timestamp) do
-    timestamp_bits = Encoding.timestamp_bits()
-    <<int_timestamp::big-unsigned-integer-size(timestamp_bits)>> = bin_timestamp
+    timestamp_bitsize = Encoding.timestamp_bitsize()
+    <<int_timestamp::big-unsigned-integer-size(timestamp_bitsize)>> = bin_timestamp
     DateTime.from_unix(int_timestamp, Encoding.time_unit())
   end
 
@@ -25,10 +25,10 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   # -------------------- Parse Whole Line --------------------
 
   def parse_log_line(line) do
-    timestamp_bits = Encoding.timestamp_bits()
+    timestamp_bitsize = Encoding.timestamp_bitsize()
     atom_bytesize = Encoding.atom_bytesize()
 
-    <<_timestamp::big-unsigned-integer-size(timestamp_bits), rest::binary>> = line
+    <<_timestamp::big-unsigned-integer-size(timestamp_bitsize), rest::binary>> = line
     <<binary_atom::binary-size(atom_bytesize), rest::binary>> = rest
 
     atom = binary_to_term(binary_atom)
@@ -93,13 +93,13 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   end
 
   def read_atom(fd) do
-    atom_bits = Encoding.atom_size()
+    atom_bytesize = Encoding.atom_bytesize()
 
     binread_then_map(
       fd,
-      atom_size,
+      atom_bytesize,
       fn bytes ->
-        <<binary_atom::binary-size(atom_size)>> = bytes
+        <<binary_atom::binary-size(atom_bytesize)>> = bytes
         atom = binary_to_term(binary_atom)
         atom
       end
@@ -107,8 +107,8 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   end
 
   def read_timestamp(fd) do
-    timestamp_bits = Encoding.timestamp_bits()
-    timestamp_int = read_big_unsigned_integer(fd, timestamp_size)
+    timestamp_bitsize = Encoding.timestamp_bitsize()
+    timestamp_int = read_big_unsigned_integer(fd, timestamp_bitsize)
 
     handle_io_result(
       timestamp_int,

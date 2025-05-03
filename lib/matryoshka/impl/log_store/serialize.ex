@@ -6,7 +6,7 @@ defmodule Matryoshka.Impl.LogStore.Serialize do
 
   def binary_timestamp() do
     timestamp = System.system_time(Encoding.time_unit())
-    <<timestamp::big-unsigned-integer-size(Encoding.timestamp_bits())>>
+    <<timestamp::big-unsigned-integer-size(Encoding.timestamp_bitsize())>>
   end
 
   # ----------------------- Formatting -----------------------

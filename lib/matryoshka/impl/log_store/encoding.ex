@@ -1,7 +1,7 @@
 defmodule Matryoshka.Impl.LogStore.Encoding do
   # Timestamps are stored in a 64-bit unsigned int
-  @timestamp_bits 64
-  def timestamp_bits, do: @timestamp_bits
+  @timestamp_bitsize 64
+  def timestamp_bitsize, do: @timestamp_bitsize
 
   # Maximum key length is 2^16 bits, ~66 kB
   @key_bitsize 16
@@ -35,7 +35,7 @@ defmodule Matryoshka.Impl.LogStore.Encoding do
 
   def relative_offset(key_size) do
     Enum.sum([
-      bits_to_bytes(@timestamp_bits),
+      bits_to_bytes(@timestamp_bitsize),
       bits_to_bytes(@key_bitsize),
       key_size
     ])
