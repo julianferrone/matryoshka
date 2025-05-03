@@ -23,34 +23,40 @@ defmodule Matryoshka.Impl.LogStore do
 
   alias __MODULE__
 
-  def binary_timestamp() do
-    System.system_time(:nanosecond)
-    |> term_to_binary()
+  defmodule Deserialize do
+    def
   end
 
-  def format_log_line(data) when is_binary(data) do
-    timestamp = binary_timestamp()
-    timestamp <> data
-  end
-
-  def write_log_line(store, data) when is_binary(data) do
-    with {:ok, file} <- File.open(store.log_filepath, [:binary, :append]) do
-      line = format_log_line(data)
-      IO.binwrite(file, line)
+  defmodule Serialize do
+    def binary_timestamp() do
+      System.system_time(:nanosecond)
+      |> term_to_binary()
     end
-  end
 
-  @spec pack_term(term()) :: {binary(), binary()}
-  def pack_term(term) do
-    binary = term |> term_to_binary()
-    size = binary |> byte_size() |> term_to_binary()
-    {size, binary}
+    def format_log_line(data) when is_binary(data) do
+      timestamp = binary_timestamp()
+      timestamp <> data
+    end
+
+    def write_log_line(store, data) when is_binary(data) do
+      with {:ok, file} <- File.open(store.log_filepath, [:binary, :append]) do
+        line = format_log_line(data)
+        IO.binwrite(file, line)
+      end
+    end
+
+    @spec pack_term(term()) :: {binary(), binary()}
+    def pack_term(term) do
+      binary = term |> term_to_binary()
+      size = binary |> byte_size() |> term_to_binary()
+      {size, binary}
+    end
   end
 
   defimpl Storage do
     def put(store, ref, value) do
-      {key_size, key} = LogStore.pack_term(ref)
-      {value_size, value} = LogStore.pack_term(value)
+      {key_size, key} = LogStore.Serialize.pack_term(ref)
+      {value_size, value} = LogStore.Serialize.pack_term(value)
 
       line =
         Enum.join([
@@ -61,12 +67,12 @@ defmodule Matryoshka.Impl.LogStore do
           value
         ])
 
-      LogStore.write_log_line(store, line)
+      LogStore.Serialize.write_log_line(store, line)
       store
     end
 
     def delete(store, ref) do
-      {key_size, key} = LogStore.pack_term(ref)
+      {key_size, key} = LogStore.Serialize.pack_term(ref)
 
       line =
         Enum.join([
@@ -75,7 +81,7 @@ defmodule Matryoshka.Impl.LogStore do
           key
         ])
 
-      LogStore.write_log_line(store, line)
+      LogStore.Serialize.write_log_line(store, line)
       store
     end
   end
