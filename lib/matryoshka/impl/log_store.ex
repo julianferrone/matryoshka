@@ -65,7 +65,7 @@ defmodule Matryoshka.Impl.LogStore do
       store
     end
 
-    def delete(store, ref, value) do
+    def delete(store, ref) do
       {key_size, key} = LogStore.pack_term(ref)
 
       line =
