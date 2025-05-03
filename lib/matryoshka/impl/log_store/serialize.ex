@@ -15,7 +15,7 @@ defmodule Matryoshka.Impl.LogStore.Serialize do
     {key_size, key} = pack_key(key)
     {value_size, value} = pack_value(value)
     line = Enum.join([
-      :w,
+      Encoding.atom_write_binary(),
       key_size,
       value_size,
       key,
@@ -27,7 +27,7 @@ defmodule Matryoshka.Impl.LogStore.Serialize do
   def format_delete_log_line(key) do
     {key_size, key} = pack_key(key)
     line = Enum.join([
-      :d,
+      Encoding.atom_delete_binary(),
       key_size,
       key
     ])
