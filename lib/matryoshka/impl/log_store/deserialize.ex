@@ -238,7 +238,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
 
   # ----------------- Read Value at Position -----------------
 
-  def get_value(fd, offset, size) do
+  def get_value(fd, offset, size) when not is_nil(size) do
     with {:ok, bin} <- :file.pread(fd, offset, size) do
       {:ok, binary_to_term(bin)}
     else

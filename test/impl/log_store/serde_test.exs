@@ -21,7 +21,7 @@ defmodule MatryoshkaTest.Impl.LogStore.SerdeTest do
     assert parsed == {:d, "key"}
   end
 
-  test "Retrieving indices from log file", %{tmp_dir: tmp_dir} do
+  test "Index from log file gives full ", %{tmp_dir: tmp_dir} do
     log_filepath = "#{tmp_dir}/test_1.log"
 
     with {:ok, file} <- File.open(log_filepath, [:binary, :write]) do
