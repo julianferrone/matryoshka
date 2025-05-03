@@ -164,6 +164,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   end
 
   def load_offsets(fd, offsets, current_offset) do
+    :file.position(fd, current_offset)
     with {:ok, _timestamp} <- read_timestamp(fd),
          {:ok, line_kind} <- read_atom(fd),
          {:ok, {key, key_size, value_size}} <- load_offsets_line(fd, line_kind) do
@@ -190,7 +191,6 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
       absolute_offset =
         current_offset + relative_offset_to_end
 
-      :file.position(fd, absolute_offset)
       load_offsets(fd, offsets, absolute_offset)
     else
       :eof -> {offsets, current_offset}
