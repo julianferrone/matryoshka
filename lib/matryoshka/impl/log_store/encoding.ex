@@ -3,11 +3,11 @@ defmodule Matryoshka.Impl.LogStore.Encoding do
   @timestamp_size 64
   def timestamp_size, do: @timestamp_size
 
-  # Maximum key length is 2^16 bytes, ~66 kB
+  # Maximum key length is 2^16 bits, ~66 kB
   @key_size 16
   def key_size, do: @key_size
 
-  # Maximum value length is 2^32 bytes, ~4.3 GB
+  # Maximum value length is 2^32 bits, ~4.3 GB
   @value_size 32
   def value_size, do: @value_size
 
@@ -30,4 +30,6 @@ defmodule Matryoshka.Impl.LogStore.Encoding do
   def atom_delete, do: @atom_delete
 
   def atom_delete_binary, do: :erlang.term_to_binary(@atom_delete)
+
+  def bits_to_bytes(bits), do: div(bits, 8)
 end

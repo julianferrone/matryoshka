@@ -81,12 +81,10 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     handle_io_result(bytes, fun)
   end
 
-  def bits_to_bytes(bits), do: div(bits, 8)
-
   # .................. Reading Elixir types ..................
 
   def read_big_unsigned_integer(fd, int_size) do
-    number_bytes = bits_to_bytes(int_size)
+    number_bytes = Encoding.bits_to_bytes(int_size)
 
     binread_then_map(fd, number_bytes, fn bytes ->
       <<int::big-unsigned-integer-size(int_size)>> = bytes
