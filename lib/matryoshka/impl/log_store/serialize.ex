@@ -52,7 +52,6 @@ defmodule Matryoshka.Impl.LogStore.Serialize do
     timestamp <> data
   end
 
-  @spec pack_term(term(), integer()) :: {binary(), binary()}
   def pack_term(term, int_size) do
     binary = term |> term_to_binary()
     size = byte_size(binary)
