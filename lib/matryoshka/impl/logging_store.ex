@@ -1,5 +1,6 @@
 defmodule Matryoshka.Impl.LoggingStore do
   import Matryoshka.Assert, only: [is_storage!: 1]
+  alias Matryoshka.Storage
 
   @enforce_keys [:inner]
   defstruct [:inner]
@@ -21,30 +22,30 @@ defmodule Matryoshka.Impl.LoggingStore do
 
   alias __MODULE__
 
-  defimpl Matryoshka.Storage do
-    def fetch(%LoggingStore{inner: inner} = store, ref) do
-      {inner, value} = Matryoshka.Storage.fetch(inner, ref)
+  defimpl Storage do
+    def fetch(store, ref) do
+      {inner, value} = Storage.fetch(store.inner, ref)
       Logger.info([request: "FETCH", ref: ref, value: value])
-      store = %{store | inner: inner}
+      store = LoggingStore.logging_store(inner)
       {store, value}
     end
 
-    def get(%LoggingStore{inner: inner} = store, ref) do
-      {inner, value} = Matryoshka.Storage.get(inner, ref)
+    def get(store, ref) do
+      {inner, value} = Storage.get(store.inner, ref)
       Logger.info([request: "GET", ref: ref, value: value])
-      store = %{store | inner: inner}
+      store = LoggingStore.logging_store(inner)
       {store, value}
     end
 
-    def put(%LoggingStore{inner: inner}, ref, value) do
+    def put(store, ref, value) do
       Logger.info([request: "PUT", ref: ref, value: value])
-      inner = Matryoshka.Storage.put(inner, ref, value)
+      inner = Storage.put(store.inner, ref, value)
       LoggingStore.logging_store(inner)
     end
 
-    def delete(%LoggingStore{inner: inner}, ref) do
+    def delete(store, ref) do
       Logger.info([request: "DELETE", ref: ref])
-      inner = Matryoshka.Storage.delete(inner, ref)
+      inner = Storage.delete(store.inner, ref)
       LoggingStore.logging_store(inner)
     end
   end
