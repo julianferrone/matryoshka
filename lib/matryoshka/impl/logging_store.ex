@@ -24,26 +24,26 @@ defmodule Matryoshka.Impl.LoggingStore do
   defimpl Matryoshka.Storage do
     def fetch(%LoggingStore{inner: inner} = store, ref) do
       {inner, value} = Matryoshka.Storage.fetch(inner, ref)
-      Logger.info("FETCH #{inspect(ref)} => #{inspect(value)}")
+      Logger.info([request: "FETCH", ref: ref, value: value])
       store = %{store | inner: inner}
       {store, value}
     end
 
     def get(%LoggingStore{inner: inner} = store, ref) do
       {inner, value} = Matryoshka.Storage.get(inner, ref)
-      Logger.info("GET #{inspect(ref)} => #{inspect(value)}")
+      Logger.info([request: "GET", ref: ref, value: value])
       store = %{store | inner: inner}
       {store, value}
     end
 
     def put(%LoggingStore{inner: inner}, ref, value) do
-      Logger.info("PUT #{inspect(ref)} <= #{inspect(value)}")
+      Logger.info([request: "PUT", ref: ref, value: value])
       inner = Matryoshka.Storage.put(inner, ref, value)
       LoggingStore.logging_store(inner)
     end
 
     def delete(%LoggingStore{inner: inner}, ref) do
-      Logger.info("DELETE #{inspect(ref)}")
+      Logger.info([request: "DELETE", ref: ref])
       inner = Matryoshka.Storage.delete(inner, ref)
       LoggingStore.logging_store(inner)
     end
