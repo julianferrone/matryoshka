@@ -21,13 +21,13 @@ defmodule MatryoshkaTest.LoggingStoreTest do
     {_result, log} = with_log(fn -> Storage.get(store, "item") end)
 
     # Assert
-    assert log =~ "GET \"item\" => nil"
+    assert log =~ "[request: \"GET\", ref: \"item\", value: nil]"
   end
 
   test "Get on LoggingStore with value logs value", %{store: store} do
     new_store = Storage.put(store, "item", :item)
     {_store, log} = with_log(fn -> Storage.get(new_store, "item") end)
-    assert log =~ "GET \"item\" => :item"
+    assert log =~ "[request: \"GET\", ref: \"item\", value: :item]"
   end
 
   test "Fetch on empty LoggingStore logs :error", %{store: store} do
@@ -35,20 +35,20 @@ defmodule MatryoshkaTest.LoggingStoreTest do
     {_result, log} = with_log(fn -> Storage.fetch(store, "item") end)
 
     # Assert
-    assert log =~ "FETCH \"item\" => {:error, {:no_ref, \"item\"}}"
+    assert log =~ "[request: \"FETCH\", ref: \"item\", value: {:error, {:no_ref, \"item\"}}]"
   end
 
   test "Fetch on LoggingStore with value logs value", %{store: store} do
     new_store = Storage.put(store, "item", :item)
     {_store, log} = with_log(fn -> Storage.fetch(new_store, "item") end)
-    assert log =~ "FETCH \"item\" => {:ok, :item}"
+    assert log =~ "[request: \"FETCH\", ref: \"item\", value: {:ok, :item}]"
   end
 
   test "Putting an item into a LoggingStore logs PUT", %{store: store} do
     # Act
     {_store, log} = with_log(fn -> Storage.put(store, "item", :item) end)
 
-    assert log =~ "PUT \"item\" <= :item"
+    assert log =~ "[request: \"PUT\", ref: \"item\", value: :item]"
   end
 
   test "Deleting on an empty LoggingStore logs DELETE", %{store: store} do
@@ -56,6 +56,6 @@ defmodule MatryoshkaTest.LoggingStoreTest do
     {_store, log} = with_log(fn -> Storage.delete(store, "item") end)
 
     # Assert
-    assert log =~ "DELETE \"item\""
+    assert log =~ "[request: \"DELETE\", ref: \"item\"]"
   end
 end
