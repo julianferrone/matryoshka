@@ -25,26 +25,26 @@ defmodule Matryoshka.Impl.LoggingStore do
   defimpl Storage do
     def fetch(store, ref) do
       {inner, value} = Storage.fetch(store.inner, ref)
-      Logger.info([request: "FETCH", ref: ref, value: value])
+      Logger.info(request: "FETCH", ref: ref, value: value)
       store = LoggingStore.logging_store(inner)
       {store, value}
     end
 
     def get(store, ref) do
       {inner, value} = Storage.get(store.inner, ref)
-      Logger.info([request: "GET", ref: ref, value: value])
+      Logger.info(request: "GET", ref: ref, value: value)
       store = LoggingStore.logging_store(inner)
       {store, value}
     end
 
     def put(store, ref, value) do
-      Logger.info([request: "PUT", ref: ref, value: value])
+      Logger.info(request: "PUT", ref: ref, value: value)
       inner = Storage.put(store.inner, ref, value)
       LoggingStore.logging_store(inner)
     end
 
     def delete(store, ref) do
-      Logger.info([request: "DELETE", ref: ref])
+      Logger.info(request: "DELETE", ref: ref)
       inner = Storage.delete(store.inner, ref)
       LoggingStore.logging_store(inner)
     end
