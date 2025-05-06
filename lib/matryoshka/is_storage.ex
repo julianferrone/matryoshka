@@ -1,4 +1,5 @@
 defmodule Matryoshka.IsStorage do
+  alias Matryoshka.Storage
     @typedoc """
   A struct that implements the Matryoshka.Storage protocol.
   """
