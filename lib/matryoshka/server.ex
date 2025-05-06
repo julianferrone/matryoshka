@@ -4,8 +4,8 @@ defmodule Matryoshka.Server do
   alias Matryoshka.Storage
   alias Matryoshka.IsStorage
 
-  def start_link(default) do
-    GenServer.start_link(__MODULE__, default, name: __MODULE__)
+  def start_link(default, options \\ []) do
+    GenServer.start_link(__MODULE__, default, options)
   end
 
   @impl true

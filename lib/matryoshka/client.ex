@@ -1,7 +1,7 @@
 defmodule Matryoshka.Client do
   @moduledoc """
   """
-
+  alias Matryoshka.Reference
   @server Matryoshka.Server
 
   @type value :: any()
@@ -17,8 +17,8 @@ defmodule Matryoshka.Client do
       iex> client.get("item")
       :item
   """
-  def start_link(store) do
-    @server.start_link(store)
+  def start_link(store, options \\ []) do
+    @server.start_link(store, options)
   end
 
   @doc """
@@ -33,21 +33,23 @@ defmodule Matryoshka.Client do
       iex> client.fetch("item")
 
   """
-  @spec get(String.t()) :: value() | nil
-  def get(ref) do
-    GenServer.call(@server, {:get, ref})
+  @spec get(GenServer.server(), Reference.t()) :: value() | nil
+  def get(pid, ref) do
+    GenServer.call(pid, {:get, ref})
   end
 
-  @spec fetch(String.t()) :: {:ok, value()} | :error
-  def fetch(ref) do
-    GenServer.call(@server, {:fetch, ref})
+  @spec fetch(GenServer.server(), Reference.t()) :: {:ok, value()} | :error
+  def fetch(pid, ref) do
+    GenServer.call(pid, {:fetch, ref})
   end
 
-  def put(ref, value) do
-    GenServer.cast(@server, {:put, ref, value})
+  @spec put(GenServer.server(), Reference.t(), term()) :: :ok
+  def put(pid, ref, value) do
+    GenServer.cast(pid, {:put, ref, value})
   end
 
-  def delete(ref) do
-    GenServer.cast(@server, {:delete, ref})
+  @spec delete(GenServer.server(), Reference.t()) :: :ok
+  def delete(pid, ref) do
+    GenServer.cast(pid, {:delete, ref})
   end
 end

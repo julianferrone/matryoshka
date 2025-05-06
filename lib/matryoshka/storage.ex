@@ -16,7 +16,7 @@ defprotocol Matryoshka.Storage do
   If `store` doesn't contain `ref`, then the reason why is returned in the shape
   of `{:error, reason}`.
   """
-  @spec fetch(store(), Reference.impl_reference()) ::
+  @spec fetch(store(), Reference.t()) ::
           {store(), {:error, value()} | {:ok, value()}}
   def fetch(store, ref)
 
@@ -26,13 +26,13 @@ defprotocol Matryoshka.Storage do
   If `store` contains the given `ref` then its value `value` is returned.
   If `store` doesn't contain `ref`, `nil` is returned.
   """
-  @spec get(store(), Reference.impl_reference()) :: {store(), value()}
+  @spec get(store(), Reference.t()) :: {store(), value()}
   def get(store, ref)
 
   @doc """
   Puts the given `value` under `ref` in `store`.
   """
-  @spec put(store(), Reference.impl_reference(), value()) :: store()
+  @spec put(store(), Reference.t(), value()) :: store()
   def put(store, ref, value)
 
   @doc """
@@ -40,6 +40,6 @@ defprotocol Matryoshka.Storage do
 
   If the `ref` does not exist, returns `store` unchanged.
   """
-  @spec delete(store(), Reference.impl_reference()) :: store()
+  @spec delete(store(), Reference.t()) :: store()
   def delete(store, ref)
 end

@@ -2,12 +2,12 @@ defprotocol Matryoshka.Reference do
   @typedoc """
   A type that implements the Matryoshka.Reference protocol.
   """
-  @type impl_reference :: any
+  @type t() :: any
 
   @doc """
   Splits a Reference into the list of underlying path components.
   """
-  @spec path_segments(impl_reference()) :: list(String.t())
+  @spec path_segments(t()) :: list(String.t())
   def path_segments(reference)
 end
 

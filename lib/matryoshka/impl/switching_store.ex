@@ -44,7 +44,7 @@ defmodule Matryoshka.Impl.SwitchingStore do
   @spec update_substore(
           Matryoshka.Impl.SwitchingStore.t(),
           IsStorage.t(),
-          Reference.impl_reference()
+          Reference.t()
         ) ::
           Matryoshka.Impl.SwitchingStore.t()
   @doc """

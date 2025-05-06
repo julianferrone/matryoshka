@@ -20,58 +20,63 @@ defmodule Matryoshka do
 
       {:ok, pid} = map_store() |> start_link()
   """
-  def start_link(store), do: Client.start_link(store)
+  defdelegate start_link(store, options \\ []), to: Client
 
   @doc """
   Gets a value from the storage server from the provided `ref`.
 
   ## Examples
 
-      iex> put("item", :item)
-      iex> get("item")
+      iex> {:ok, pid} = map_store() |> start_link()
+      iex> put(pid, "item", :item)
+      iex> get(pid, "item")
       :item
-      iex> get("not_existing")
+      iex> get(pid, "not_existing")
       nil
   """
-  def get(ref), do: Client.get(ref)
+  defdelegate get(pid, ref), to: Client
 
   @doc """
   Fetches a value from the storage server from the provided `ref`.
 
   ## Examples
 
-      iex> put("item", :item)
-      iex> fetch("item")
+      iex> {:ok, pid} = map_store() |> start_link()
+      iex> put(pid, "item", :item)
+      iex> fetch(pid, "item")
       {:ok, :item}
-      iex> fetch("not_existing")
+      iex> fetch(pid, "not_existing")
       {:error, {:no_ref, "not_existing"}}
   """
-  def fetch(ref), do: Client.fetch(ref)
+  defdelegate fetch(pid, ref), to: Client
 
   @doc """
   Puts a value into the storage server at the provided `ref`.
 
   ## Examples
 
-      iex> put("item", :item)
-      iex> fetch("item")
+      iex> {:ok, pid} = map_store() |> start_link()
+      iex> {:ok, pid} = map_store() |> start_link()
+      iex> put(pid, "item", :item)
+      iex> fetch(pid, "item")
       {:ok, :item}
   """
-  defdelegate put(ref, value), to: Client
+  defdelegate put(pid, ref, value), to: Client
 
   @doc """
   Fetches a value from the storage server from the provided `ref`.
 
   ## Examples
 
-      iex> put("item", :item)
-      iex> fetch("item")
+      iex> {:ok, pid} = map_store() |> start_link()
+      iex> put(pid, "item", :item)
+      iex> fetch(pid, "item")
       {:ok, :item}
-      iex> delete("item")
-      iex> fetch("item")
+      iex> delete(pid, "item")
+      iex> fetch(pid, "item")
       {:error, {:no_ref, "item"}}
   """
-  defdelegate delete(ref), to: Client
+  defdelegate delete(pid, ref), to: Client
 
   @doc """
   Creates a `CachingStore` backed by a `MapStore` as the fast cache.
