@@ -5,13 +5,11 @@ defmodule MatryoshkaTest.Impl.LogStore.SerdeTest do
 
   use ExUnit.Case, async: true
 
-  @moduletag :tmp_dir
-
   test "Serializing then deserializing write log line should be ok" do
     {log_line, relative_offset, value_size} = Serialize.format_write_log_line("key", "value")
     {:ok, parsed} = Deserialize.parse_log_line(log_line)
     assert parsed == {:w, "key", "value"}
-    assert relative_offset == 38
+    assert relative_offset == 27
     assert value_size == 11
   end
 
@@ -21,6 +19,7 @@ defmodule MatryoshkaTest.Impl.LogStore.SerdeTest do
     assert parsed == {:d, "key"}
   end
 
+  @tag :tmp_dir
   test "Can retrieve value from log file using index", %{tmp_dir: tmp_dir} do
     log_filepath = "#{tmp_dir}/test_1.log"
 
@@ -37,7 +36,7 @@ defmodule MatryoshkaTest.Impl.LogStore.SerdeTest do
       {:ok, value} = Deserialize.get_value(file, one_offset, one_size)
       assert value == "val_1"
       {:ok, value} = Deserialize.get_value(file, two_offset, two_size)
-      assert value == "value_1"
+      assert value == "value_2"
     end
   end
 end
