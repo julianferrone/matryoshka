@@ -19,9 +19,18 @@ defmodule Matryoshka.Impl.LogStore do
         }
 
   def log_store(log_filepath) do
-    {:ok, writer} = File.open(log_filepath, [:binary, :write])
-    {:ok, reader} = File.open(log_filepath, [:binary, :read])
-    %__MODULE__{reader: reader, writer: writer, index: Map.new()}
+    {reader, writer, index} = case File.open(log_filepath, [:binary, :read]) do
+      {:ok, reader} ->
+        index = Deserialize.load_offsets(reader)
+        {:ok, writer} = File.open(log_filepath, [:binary, :write])
+        {reader, writer, index}
+      {:error, _reason} ->
+        {:ok, writer} = File.open(log_filepath, [:binary, :write])
+        {:ok, reader} = File.open(log_filepath, [:binary, :read])
+        index = Map.new()
+        {reader, writer, index}
+    end
+    %__MODULE__{reader: reader, writer: writer, index: index}
   end
 
   defimpl Storage do
