@@ -26,44 +26,36 @@ defmodule Matryoshka.Impl.LogStore do
 
   defimpl Storage do
     def fetch(store, ref) do
-      value = case Map.fetch(store.index, ref) do
-        :error -> {:error, {:no_ref, ref}}
-        {:ok, {_position, nil}} -> {:error, {:no_ref, ref}}
-        {:ok, {position, size}} ->
-          case Deserialize.get_value(store.reader, position, size) do
-            {:ok, value} -> value
-            {:error, reason} -> {:error, reason}
-            :eof -> {:error, :eof}
-          end
+      value =
+        with {:index, {:ok, {offset, size}}} when not is_nil(size) <-
+               {:index, Map.fetch(store.index, ref)},
+             {:store, {:ok, value}} <- {:store, Deserialize.get_value(store.reader, offset, size)} do
+          value
+        else
+          {:index, :error} -> {:error, {:no_ref, ref}}
+          {:index, {:ok, {_position, nil}}} -> {:error, {:no_ref, ref}}
+          {:store, {:error, reason}} -> {:error, reason}
+          {:store, :eof} -> {:error, :eof}
         end
+
       {store, value}
-      end
+
+    end
 
     def get(store, ref) do
-      value = case Map.fetch(store.index, ref) do
-        :error ->
-
-          nil
-        {:ok, {_position, nil}} = given1 ->
-
-          nil
-        {:ok, {offset, size}} = given2 ->
-
-          case Deserialize.get_value(store.reader, offset, size) do
-            {:ok, value} = given3 ->
-
-              value
-            other ->
-
-              nil
-          end
+      value =
+        with {:ok, {offset, size}} when not is_nil(size) <- Map.fetch(store.index, ref),
+             {:ok, value} <- Deserialize.get_value(store.reader, offset, size) do
+          value
+        else
+          _ -> nil
         end
+
       {store, value}
     end
 
     def put(store, ref, value) do
       {position, size} = Serialize.append_write_log_line(store.writer, ref, value)
-
 
       index = Map.put(store.index, ref, {position, size})
       %{store | index: index}
