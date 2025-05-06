@@ -39,7 +39,6 @@ defmodule Matryoshka.Impl.LogStore do
         end
 
       {store, value}
-
     end
 
     def get(store, ref) do

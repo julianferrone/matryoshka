@@ -1,20 +1,15 @@
 defmodule Matryoshka.Impl.PassThrough do
-  import Matryoshka.Assert, only: [is_storage!: 1]
+  alias Matryoshka.IsStorage
 
   @enforce_keys [:inner]
   defstruct [:inner]
 
-  @typedoc """
-  A struct that implements the Matryoshka.Storage protocol.
-  """
-  @type impl_storage :: any()
-
   @type t :: %__MODULE__{
-          inner: impl_storage
+          inner: IsStorage.t()
         }
 
   def pass_through(storage) when is_struct(storage) do
-    is_storage!(storage)
+    IsStorage.is_storage!(storage)
     %__MODULE__{inner: storage}
   end
 

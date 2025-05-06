@@ -1,5 +1,5 @@
 defmodule Matryoshka.Impl.MappingStore do
-  import Matryoshka.Assert, only: [is_storage!: 1]
+  alias Matryoshka.IsStorage
 
   @enforce_keys [:inner]
   defstruct [
@@ -9,13 +9,8 @@ defmodule Matryoshka.Impl.MappingStore do
     map_to_store: &Function.identity/1
   ]
 
-  @typedoc """
-  A struct that implements the Matryoshka.Storage protocol.
-  """
-  @type impl_storage :: any()
-
   @type t :: %__MODULE__{
-          inner: impl_storage,
+          inner: IsStorage.t(),
           map_ref: (Matryoshka.Reference -> Matryoshka.Reference),
           map_retrieved: (any() -> any()),
           map_to_store: (any() -> any())
@@ -87,7 +82,7 @@ defmodule Matryoshka.Impl.MappingStore do
       "item"
   """
   def mapping_store(inner, opts \\ []) do
-    is_storage!(inner)
+    IsStorage.is_storage!(inner)
     map_ref = Keyword.get(opts, :map_ref, @identity)
     map_retrieved = Keyword.get(opts, :map_retrieved, @identity)
     map_to_store = Keyword.get(opts, :map_to_store, @identity)

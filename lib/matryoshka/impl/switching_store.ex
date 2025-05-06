@@ -2,18 +2,13 @@ defmodule Matryoshka.Impl.SwitchingStore do
   alias Matryoshka.Impl.SwitchingStore
   alias Matryoshka.Reference
   alias Matryoshka.Storage
-  import Matryoshka.Assert, only: [is_storage!: 1]
+  alias Matryoshka.IsStorage
 
   @enforce_keys [:path_store_map]
   defstruct @enforce_keys
 
-  @typedoc """
-  A struct that implements the Storage protocol.
-  """
-  @type impl_storage :: any()
-
   @type t :: %__MODULE__{
-          path_store_map: %{String.t() => impl_storage()}
+          path_store_map: %{String.t() => IsStorage.t()}
         }
 
   @doc """
@@ -34,10 +29,10 @@ defmodule Matryoshka.Impl.SwitchingStore do
       iex> value
       {:error, {:no_ref, "item"}}
   """
-  @spec switching_store(%{String.t() => impl_storage()}) :: SwitchingStore.t()
+  @spec switching_store(%{String.t() => IsStorage.t()}) :: SwitchingStore.t()
   def switching_store(path_store_map) when is_map(path_store_map) do
     Map.values(path_store_map)
-    |> Enum.each(&is_storage!/1)
+    |> Enum.each(&IsStorage.is_storage!/1)
 
     %__MODULE__{
       path_store_map: path_store_map
@@ -48,7 +43,7 @@ defmodule Matryoshka.Impl.SwitchingStore do
 
   @spec update_substore(
           Matryoshka.Impl.SwitchingStore.t(),
-          impl_storage(),
+          IsStorage.t(),
           Reference.impl_reference()
         ) ::
           Matryoshka.Impl.SwitchingStore.t()

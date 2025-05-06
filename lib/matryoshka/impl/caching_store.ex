@@ -1,19 +1,14 @@
 defmodule Matryoshka.Impl.CachingStore do
+  alias Matryoshka.IsStorage
   alias Matryoshka.Storage
   import Matryoshka.Impl.MapStore, only: [map_store: 0]
-  import Matryoshka.Assert, only: [is_storage!: 1]
 
   @enforce_keys [:main_store, :fast_store]
   defstruct [:main_store, :fast_store]
 
-  @typedoc """
-  A struct that implements the Matryoshka.Storage protocol.
-  """
-  @type impl_storage :: any()
-
   @type t :: %__MODULE__{
-          main_store: impl_storage(),
-          fast_store: impl_storage()
+          main_store: IsStorage.t(),
+          fast_store: IsStorage.t()
         }
 
   @doc """
@@ -27,8 +22,8 @@ defmodule Matryoshka.Impl.CachingStore do
   """
   def caching_store(main_storage, fast_storage)
       when is_struct(main_storage) and is_struct(fast_storage) do
-    is_storage!(main_storage)
-    is_storage!(fast_storage)
+    IsStorage.is_storage!(main_storage)
+    IsStorage.is_storage!(fast_storage)
     %__MODULE__{main_store: main_storage, fast_store: fast_storage}
   end
 

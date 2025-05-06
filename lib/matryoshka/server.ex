@@ -2,7 +2,7 @@ defmodule Matryoshka.Server do
   use GenServer
 
   alias Matryoshka.Storage
-  import Matryoshka.Assert, only: [is_storage!: 1]
+  alias Matryoshka.IsStorage
 
   def start_link(default) do
     GenServer.start_link(__MODULE__, default, name: __MODULE__)
@@ -10,7 +10,7 @@ defmodule Matryoshka.Server do
 
   @impl true
   def init(store) do
-    is_storage!(store)
+    IsStorage.is_storage!(store)
     {:ok, store}
   end
 

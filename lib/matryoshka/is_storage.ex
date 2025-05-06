@@ -1,5 +1,8 @@
-defmodule Matryoshka.Assert do
-  alias Matryoshka.Storage
+defmodule Matryoshka.IsStorage do
+    @typedoc """
+  A struct that implements the Matryoshka.Storage protocol.
+  """
+  @type t :: any()
 
   @doc """
   Assert that the provided storage struct implements the Storage protocol.

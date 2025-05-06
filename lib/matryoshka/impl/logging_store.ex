@@ -1,5 +1,5 @@
 defmodule Matryoshka.Impl.LoggingStore do
-  import Matryoshka.Assert, only: [is_storage!: 1]
+  alias Matryoshka.IsStorage
   alias Matryoshka.Storage
 
   @enforce_keys [:inner]
@@ -9,14 +9,13 @@ defmodule Matryoshka.Impl.LoggingStore do
   A struct that implements the Matryoshka.Storage protocol.
   """
   require Logger
-  @type impl_storage :: any()
 
   @type t :: %__MODULE__{
-          inner: impl_storage
+          inner: IsStorage.t()
         }
 
   def logging_store(storage) when is_struct(storage) do
-    is_storage!(storage)
+    IsStorage.is_storage!(storage)
     %__MODULE__{inner: storage}
   end
 
