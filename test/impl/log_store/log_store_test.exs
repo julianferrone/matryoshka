@@ -40,4 +40,14 @@ defmodule MatryoshkaTest.Impl.LogStoreTest do
 
     assert :item == value
   end
+
+  test "Putting additional items into a LogStore doesn't prevent getting earlier values", %{tmp_dir: tmp_dir} do
+    store = LogStore.log_store("#{tmp_dir}/test.log")
+    # Act
+    store = Storage.put(store, "earlier", :earlier)
+    store = Storage.put(store, "later", :later)
+    {_store, value} = Storage.get(store, "earlier")
+
+    assert :earlier == value
+  end
 end
