@@ -7,6 +7,7 @@ defmodule Matryoshka do
   alias Matryoshka.Impl.MapStore
   alias Matryoshka.Impl.MappingStore
   alias Matryoshka.Impl.PassThrough
+  alias Matryoshka.Impl.PersistentStore
   alias Matryoshka.Impl.SwitchingStore
 
   # Client to interact with store
@@ -235,6 +236,27 @@ defmodule Matryoshka do
   A `%PassThrough{}` wrapping the given storage.
   """
   defdelegate pass_through(store), to: PassThrough
+
+  @doc """
+  Creates a persistent and cached log store from the provided file path.
+
+  This function initializes a log store by opening the specified log file
+  (`log_filepath`). If the log file exists, it reads the file and loads any
+  existing offsets for fast access. If the log file does not exist, it creates
+  a new file for storing log data.
+
+  This store also applies a caching mechanism to optimize subsequent read and
+  write operations.
+
+  ### Parameters:
+  - `log_filepath`: The file path to the log file, which will be used for
+  persisting data on disk.
+
+  ### Returns:
+  - A cached log store, which includes functionality for efficient reading,
+  writing, and indexing of log data.
+  """
+  defdelegate persistent_store(log_filepath), to: PersistentStore
 
   @doc """
   Creates a `SwitchingStore` that routes `fetch`, `get`, `put`, and `delete`

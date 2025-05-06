@@ -49,6 +49,7 @@ The business logic of different stores and store combinators is found under /lib
 | MapStore | `map_store/0`, `map_store/1` | Provides a Map-backed store | ❌ | N/A |
 | MappingStore | `mapping_store/2` | Applies functions to the reference path, items on retrieval, and items on storage. | ✅ | Takes 1 underlying store | 
 | PassThrough | `pass_through/1` | Directs all calls to the inner store and does nothing | ✅ | Takes 1 underlying store |
+| PersistentStore | `persistent_store/1` | Persists puts and deletes to an append-only log, and caches storage calls for fast data access. | ❌ | N/A |
 | SwitchingStore | `switching_store/1` | Directs all storage calls to inner stores depending on the first path segment of the `path` | ✅ | Takes a Map of strings to underlying stores |
 
 Of these, PassThrough is useless, and is provided only to compare with the PassThrough store in (Weiher & Hirschfeld, 2019).
