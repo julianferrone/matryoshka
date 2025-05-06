@@ -193,7 +193,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
 
       load_offsets(fd, offsets, absolute_offset)
     else
-      :eof -> {offsets, current_offset}
+      :eof -> offsets
     end
   end
 
