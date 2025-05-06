@@ -28,7 +28,7 @@ defmodule MatryoshkaTest.Impl.LogStore.SerdeTest do
       Serialize.append_write_log_line(file, "two", "value_2")
     end
 
-    {index, _final_position} = Deserialize.get_index(log_filepath)
+    index = Deserialize.get_index(log_filepath)
     {one_offset, one_size} = Map.get(index, "one")
     {two_offset, two_size} = Map.get(index, "two")
 
