@@ -24,9 +24,9 @@ defmodule Matryoshka.Impl.LogStore.Serialize do
         value
       ])
 
-    relative_offset = Encoding.relative_offset(key_size, value_size)
+    line_size = Encoding.write_entry_pre_value_size(key_size)
 
-    {prepend_timestamp(line), relative_offset, value_size}
+    {prepend_timestamp(line), line_size, value_size}
   end
 
   def format_delete_log_line(key) do
@@ -39,12 +39,12 @@ defmodule Matryoshka.Impl.LogStore.Serialize do
         key
       ])
 
-    relative_offset = Encoding.relative_offset(key_size)
+    line_size = Encoding.delete_entry_size(key_size)
 
     # Tuple in the form of the line, the relative offset of the value in the file,
     # and the value size. Because we deleted the value, we can just
     # notice that there's 0 bytes to read and say that this value was deleted
-    {prepend_timestamp(line), relative_offset, nil}
+    {prepend_timestamp(line), line_size, nil}
   end
 
   def prepend_timestamp(data) when is_binary(data) do

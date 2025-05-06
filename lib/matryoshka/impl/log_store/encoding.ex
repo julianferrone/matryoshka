@@ -33,20 +33,33 @@ defmodule Matryoshka.Impl.LogStore.Encoding do
 
   def bits_to_bytes(bits), do: div(bits, 8)
 
-  def relative_offset(key_size) do
+  def delete_entry_size(key_size) do
     Enum.sum([
       bits_to_bytes(@timestamp_bitsize),
       atom_bytesize(),
       bits_to_bytes(@key_bitsize),
-      key_size
+      key_size,
     ])
   end
 
-  def relative_offset(key_size, value_size) do
+  def write_entry_size(key_size, value_size) do
     Enum.sum([
-      relative_offset(key_size),
+      bits_to_bytes(@timestamp_bitsize),
+      atom_bytesize(),
+      bits_to_bytes(@key_bitsize),
       bits_to_bytes(@value_bitsize),
-      value_size
+      key_size,
+      value_size,
+    ])
+  end
+
+  def write_entry_pre_value_size(key_size) do
+    Enum.sum([
+      bits_to_bytes(@timestamp_bitsize),
+      atom_bytesize(),
+      bits_to_bytes(@key_bitsize),
+      bits_to_bytes(@value_bitsize),
+      key_size,
     ])
   end
 end

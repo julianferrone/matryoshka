@@ -171,16 +171,16 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
       relative_offset_to_value =
         case value_size do
           nil ->
-            Encoding.relative_offset(key_size)
+            Encoding.delete_entry_size(key_size)
 
           _nonzero ->
-            Encoding.relative_offset(key_size) + Encoding.bits_to_bytes(Encoding.value_bitsize())
+            Encoding.write_entry_pre_value_size(key_size)
         end
 
       relative_offset_to_end =
         case value_size do
-          nil -> Encoding.relative_offset(key_size)
-          value_size -> Encoding.relative_offset(key_size, value_size)
+          nil -> Encoding.delete_entry_size(key_size)
+          value_size -> Encoding.write_entry_size(key_size, value_size)
         end
 
       value_offset =
@@ -240,6 +240,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
 
   def get_value(fd, offset, size) when not is_nil(size) do
     with {:ok, bin} <- :file.pread(fd, offset, size) do
+
       {:ok, binary_to_term(bin)}
     else
       other -> other

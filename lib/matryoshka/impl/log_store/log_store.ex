@@ -26,37 +26,45 @@ defmodule Matryoshka.Impl.LogStore do
 
   defimpl Storage do
     def fetch(store, ref) do
-      {position, size} = Map.get(store.index, ref)
-
-      case size do
-        nil -> {:error, {:no_ref, ref}}
-
-        nonzero ->
-          case Deserialize.get_value(store.reader, position, nonzero) do
-            {:ok, value} -> {:ok, value}
-            :eof -> {:error, :eof}
+      value = case Map.fetch(store.index, ref) do
+        :error -> {:error, {:no_ref, ref}}
+        {:ok, {_position, nil}} -> {:error, {:no_ref, ref}}
+        {:ok, {position, size}} ->
+          case Deserialize.get_value(store.reader, position, size) do
+            {:ok, value} -> value
             {:error, reason} -> {:error, reason}
+            :eof -> {:error, :eof}
           end
+        end
+      {store, value}
       end
-    end
 
     def get(store, ref) do
-      {position, size} = Map.get(store.index, ref)
+      value = case Map.fetch(store.index, ref) do
+        :error ->
 
-      case size do
-        nil ->
           nil
+        {:ok, {_position, nil}} = given1 ->
 
-        nonzero ->
-          case Deserialize.get_value(store.reader, position, nonzero) do
-            {:ok, value} -> value
-            _other -> nil
+          nil
+        {:ok, {offset, size}} = given2 ->
+
+          case Deserialize.get_value(store.reader, offset, size) do
+            {:ok, value} = given3 ->
+
+              value
+            other ->
+
+              nil
           end
-      end
+        end
+      {store, value}
     end
 
     def put(store, ref, value) do
       {position, size} = Serialize.append_write_log_line(store.writer, ref, value)
+
+
       index = Map.put(store.index, ref, {position, size})
       %{store | index: index}
     end
