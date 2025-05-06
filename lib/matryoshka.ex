@@ -3,6 +3,7 @@ defmodule Matryoshka do
   alias Matryoshka.Impl.CachingStore
   alias Matryoshka.Impl.FilesystemStore
   alias Matryoshka.Impl.LoggingStore
+  alias Matryoshka.Impl.LogStore
   alias Matryoshka.Impl.MapStore
   alias Matryoshka.Impl.MappingStore
   alias Matryoshka.Impl.PassThrough
@@ -153,6 +154,25 @@ defmodule Matryoshka do
   `Matryoshka.Storage` protocol.
   """
   defdelegate logging_store(store), to: LoggingStore
+
+  @doc """
+  Opens a log file, either loading its offset index or creating a new one if
+  the file doesn't exist.
+
+  The function attempts to open the log file at the given `log_filepath`.
+
+  If the file exists, it loads the key-value offsets and opens the file for
+  both reading and writing. If the file doesn't exist, it creates a new index
+  and opens the file for both reading and writing.
+
+  Returns a `%__MODULE__{}` struct containing the following:
+    - `reader`: The file descriptor for reading from the log file.
+    - `writer`: The file descriptor for writing to the log file.
+    - `index`: A map representing the offset index of the log file.
+
+  If the log file doesn't exist, the index is initialized as an empty map.
+  """
+  defdelegate log_store(log_filepath), to: LogStore
 
   @doc """
   Creates a new `MapStore` backed by an empty `Map`.

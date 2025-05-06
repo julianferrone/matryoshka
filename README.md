@@ -45,6 +45,7 @@ The business logic of different stores and store combinators is found under /lib
 | CachingStore | `caching_store/1`, `caching_store/2` | Directs storage calls to a fast cache store (on all calls) and a slow main store (always on put / delete, only if not available in fast cache store on get / fetch). | ✅ | Takes 2 underlying stores |
 | FilesystemStore | `filesystem_store/1` | Persists values as files on disk, using the reference path as a relative path to the given root directory. Each reference is mapped to a different file. | ❌ | N/A |
 | LoggingStore | `logging_store/1` | Logs all storage calls | ✅ | Takes 1 underlying store  |
+| LogStore | `log_store/1` | Persists puts and deletes as binary entries in an append-only log, and looks up gets and fetches using an index. | ❌ | N/A |
 | MapStore | `map_store/0`, `map_store/1` | Provides a Map-backed store | ❌ | N/A |
 | MappingStore | `mapping_store/2` | Applies functions to the reference path, items on retrieval, and items on storage. | ✅ | Takes 1 underlying store | 
 | PassThrough | `pass_through/1` | Directs all calls to the inner store and does nothing | ✅ | Takes 1 underlying store |
@@ -58,7 +59,7 @@ Of these, PassThrough is useless, and is provided only to compare with the PassT
 - [ ] Add JsonStore and XmlStore as specialisations of MappingStore
 - [ ] Add patch functionality
   - This will probably only be allowed for certain values like JSON or XML, using RFC 6902 JSON Patch and RFC 5261 XML Patch Operations 
-- [ ] Add persistent key-value storage
+- [x] Add persistent key-value storage in LogStore
   - using an append-only log approach
 - [ ] Add a store that stores values in either a persistent KV store or as files depending on the size of the value
 
