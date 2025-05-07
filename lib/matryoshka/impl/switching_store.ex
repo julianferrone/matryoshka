@@ -50,8 +50,8 @@ defmodule Matryoshka.Impl.SwitchingStore do
   @doc """
   Updates a substore inside a SwitchingStore.
   """
-  def update_substore(%SwitchingStore{path_store_map: path_store_map}, sub_store, sub_store_ref) do
-    path_store_map
+  def update_substore(store, sub_store, sub_store_ref) do
+    store.path_store_map
     |> Map.put(sub_store_ref, sub_store)
     |> SwitchingStore.switching_store()
   end
@@ -88,11 +88,11 @@ defmodule Matryoshka.Impl.SwitchingStore do
   substore, the first path segment of the Reference, and the remainder of the
   Reference.
   """
-  def locate_substore(%SwitchingStore{path_store_map: path_store_map}, ref) do
+  def locate_substore(store, ref) do
     with {:split_ref, {:ok, path_first, path_rest}} <-
            {:split_ref, SwitchingStore.split_reference(ref)},
          {:fetch_substore, {:ok, sub_store}} <-
-           {:fetch_substore, Map.fetch(path_store_map, path_first)} do
+           {:fetch_substore, Map.fetch(store.path_store_map, path_first)} do
       {:ok, sub_store, path_first, path_rest}
     else
       {:split_ref, error} -> error
