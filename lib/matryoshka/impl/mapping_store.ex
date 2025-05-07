@@ -1,12 +1,14 @@
 defmodule Matryoshka.Impl.MappingStore do
   alias Matryoshka.IsStorage
 
+  @identity &Function.identity/1
+
   @enforce_keys [:inner]
   defstruct [
     :inner,
-    map_ref: &Function.identity/1,
-    map_retrieved: &Function.identity/1,
-    map_to_store: &Function.identity/1
+    map_ref: @identity,
+    map_retrieved: @identity,
+    map_to_store: @identity
   ]
 
   @type t :: %__MODULE__{
@@ -16,7 +18,6 @@ defmodule Matryoshka.Impl.MappingStore do
           map_to_store: (any() -> any())
         }
 
-  @identity &Function.identity/1
 
   @doc """
   Wraps an inner store with a mapping layer.
