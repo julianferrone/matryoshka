@@ -40,7 +40,7 @@ defmodule Matryoshka.Impl.LogStore do
       case File.open(log_filepath, [:binary, :read]) do
         {:ok, reader} ->
           index = Deserialize.load_offsets(reader)
-          {:ok, writer} = File.open(log_filepath, [:binary, :write])
+          {:ok, writer} = File.open(log_filepath, [:binary, :append])
           {reader, writer, index}
 
         {:error, _reason} ->

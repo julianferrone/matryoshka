@@ -1,6 +1,7 @@
 defmodule MatryoshkaTest.Impl.LogStoreTest do
   use ExUnit.Case, async: true
   alias Matryoshka.Impl.LogStore
+  alias Matryoshka.Impl.LogStore.Serialize
   alias Matryoshka.Storage
 
   @moduletag :tmp_dir
@@ -49,5 +50,18 @@ defmodule MatryoshkaTest.Impl.LogStoreTest do
     {_store, value} = Storage.get(store, "earlier")
 
     assert :earlier == value
+  end
+
+  test "LogStore reads previously added values when re-instantiated", %{tmp_dir: tmp_dir} do
+    log_filepath = "#{tmp_dir}/test.log"
+
+    with {:ok, file} <- File.open(log_filepath, [:binary, :write]) do
+      Serialize.append_write_log_line(file, "key", :value)
+    end
+
+    store = LogStore.log_store(log_filepath)
+    dbg(store)
+    {_store, value} = Storage.get(store, "key")
+    assert value == :value
   end
 end
