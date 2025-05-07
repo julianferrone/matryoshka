@@ -63,13 +63,13 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     int_value_size
   end
 
-  # ___________________ Parsing Whole entrys __________________
+  # __________________ Parsing Whole Entries _________________
 
   @doc """
   Parses a binary log entry and dispatches to the appropriate parser
   based on the encoded operation atom.
 
-  log entrys begin with a timestamp (64 bits) followed by a serialized
+  Log entries begin with a timestamp (64 bits) followed by a serialized
   atom that indicates the operation type (`:w` for write, `:d` for delete).
 
   ## Parameters
@@ -294,7 +294,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     end
   end
 
-  # -------------------- Reading log entrys -------------------
+  # ------------------- Reading Log Entries ------------------
 
   # .................... Read Entire entry ....................
 
