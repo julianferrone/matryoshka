@@ -16,12 +16,12 @@ Stores and store combinators are composed together using the functions found
 in the module **Matryoshka**. After starting the server, the store can
 be interacted with using the functions `get`, `put`, `fetch`, and `delete`.
 
-- `get(path)` returns the `value` at the given `path` if it exists, or `nil` if
+- `get(server, path)` returns the `value` at the given `path` if it exists, or `nil` if
   not.
-- `fetch(path)` returns `{:ok, value}` if the value exists at the given `path`,
+- `fetch(server, path)` returns `{:ok, value}` if the value exists at the given `path`,
   or `{:error, reason}` if not
-- `put(path, value)` puts the `value` into the store at the given `path`
-- `delete(path)` deletes the `value` in the store at the given `path`
+- `put(server, path, value)` puts the `value` into the store at the given `path`
+- `delete(server, path)` deletes the `value` in the store at the given `path`
 
 ```elixir
 alias Matryoshka
