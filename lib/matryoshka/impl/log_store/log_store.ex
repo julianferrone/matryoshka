@@ -83,14 +83,14 @@ defmodule Matryoshka.Impl.LogStore do
     end
 
     def put(store, ref, value) do
-      {position, size} = Serialize.append_write_log_line(store.writer, ref, value)
+      {position, size} = Serialize.append_write_log_entry(store.writer, ref, value)
 
       index = Map.put(store.index, ref, {position, size})
       %{store | index: index}
     end
 
     def delete(store, ref) do
-      {position, size} = Serialize.append_delete_log_line(store.writer, ref)
+      {position, size} = Serialize.append_delete_log_entry(store.writer, ref)
       index = Map.put(store.index, ref, {position, size})
       %{store | index: index}
     end

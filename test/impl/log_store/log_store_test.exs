@@ -56,7 +56,7 @@ defmodule MatryoshkaTest.Impl.LogStoreTest do
     log_filepath = "#{tmp_dir}/test.log"
 
     with {:ok, file} <- File.open(log_filepath, [:binary, :write]) do
-      Serialize.append_write_log_line(file, "key", :value)
+      Serialize.append_write_log_entry(file, "key", :value)
     end
 
     store = LogStore.log_store(log_filepath)

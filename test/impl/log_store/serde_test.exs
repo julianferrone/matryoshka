@@ -5,17 +5,17 @@ defmodule MatryoshkaTest.Impl.LogStore.SerdeTest do
 
   use ExUnit.Case, async: true
 
-  test "Serializing then deserializing write log line should be ok" do
-    {log_line, relative_offset, value_size} = Serialize.format_write_log_line("key", "value")
-    {:ok, parsed} = Deserialize.parse_log_line(log_line)
+  test "Serializing then deserializing write log entry should be ok" do
+    {log_entry, relative_offset, value_size} = Serialize.format_write_log_entry("key", "value")
+    {:ok, parsed} = Deserialize.parse_log_entry(log_entry)
     assert parsed == {:w, "key", "value"}
     assert relative_offset == 27
     assert value_size == 11
   end
 
-  test "Serializing then deserializing delete log line should be ok" do
-    {log_line, _relative_offset, _value_size} = Serialize.format_delete_log_line("key")
-    {:ok, parsed} = Deserialize.parse_log_line(log_line)
+  test "Serializing then deserializing delete log entry should be ok" do
+    {log_entry, _relative_offset, _value_size} = Serialize.format_delete_log_entry("key")
+    {:ok, parsed} = Deserialize.parse_log_entry(log_entry)
     assert parsed == {:d, "key"}
   end
 
@@ -24,8 +24,8 @@ defmodule MatryoshkaTest.Impl.LogStore.SerdeTest do
     log_filepath = "#{tmp_dir}/test_1.log"
 
     with {:ok, file} <- File.open(log_filepath, [:binary, :write]) do
-      Serialize.append_write_log_line(file, "one", "val_1")
-      Serialize.append_write_log_line(file, "two", "value_2")
+      Serialize.append_write_log_entry(file, "one", "val_1")
+      Serialize.append_write_log_entry(file, "two", "value_2")
     end
 
     index = Deserialize.get_index(log_filepath)

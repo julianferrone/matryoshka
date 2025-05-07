@@ -63,30 +63,30 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     int_value_size
   end
 
-  # ___________________ Parsing Whole Lines __________________
+  # ___________________ Parsing Whole entrys __________________
 
   @doc """
-  Parses a binary log line and dispatches to the appropriate parser
+  Parses a binary log entry and dispatches to the appropriate parser
   based on the encoded operation atom.
 
-  Log lines begin with a timestamp (64 bits) followed by a serialized
+  log entrys begin with a timestamp (64 bits) followed by a serialized
   atom that indicates the operation type (`:w` for write, `:d` for delete).
 
   ## Parameters
 
-    - `line`: A binary log line.
+    - `entry`: A binary log entry.
 
   ## Returns
 
     - `{:ok, {atom, key, value}}` for write operations.
     - `{:ok, {atom, key}}` for delete operations.
-    - `{:err, {:no_line_kind, atom}}` if the operation atom is unrecognized.
+    - `{:err, {:no_entry_kind, atom}}` if the operation atom is unrecognized.
   """
-  def parse_log_line(line) do
+  def parse_log_entry(entry) do
     timestamp_bitsize = Encoding.timestamp_bitsize()
     atom_bytesize = Encoding.atom_bytesize()
 
-    <<_timestamp::big-unsigned-integer-size(timestamp_bitsize), rest::binary>> = line
+    <<_timestamp::big-unsigned-integer-size(timestamp_bitsize), rest::binary>> = entry
     <<binary_atom::binary-size(atom_bytesize), rest::binary>> = rest
 
     atom = binary_to_term(binary_atom)
@@ -94,14 +94,14 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     atom_delete = Encoding.atom_delete()
 
     case atom do
-      ^atom_write -> {:ok, parse_write_line(rest)}
-      ^atom_delete -> {:ok, parse_delete_line(rest)}
-      _ -> {:err, {:no_line_kind, atom}}
+      ^atom_write -> {:ok, parse_write_entry(rest)}
+      ^atom_delete -> {:ok, parse_delete_entry(rest)}
+      _ -> {:err, {:no_entry_kind, atom}}
     end
   end
 
   @doc """
-  Parses a binary log line representing a write operation.
+  Parses a binary log entry representing a write operation.
 
   The format is:
   - 16-bit key size
@@ -111,17 +111,17 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
 
   ## Parameters
 
-    - `line`: The binary data after the timestamp and atom.
+    - `entry`: The binary data after the timestamp and atom.
 
   ## Returns
 
     - `{:w, key, value}`
   """
-  def parse_write_line(line) do
+  def parse_write_entry(entry) do
     key_bitsize = Encoding.key_bitsize()
     value_bitsize = Encoding.value_bitsize()
 
-    <<int_key_size::big-unsigned-integer-size(key_bitsize), rest::binary>> = line
+    <<int_key_size::big-unsigned-integer-size(key_bitsize), rest::binary>> = entry
     <<int_value_size::big-unsigned-integer-size(value_bitsize), rest::binary>> = rest
 
     <<bin_key::binary-size(int_key_size), rest::binary>> = rest
@@ -133,7 +133,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   end
 
   @doc """
-  Parses a binary log line representing a delete operation.
+  Parses a binary log entry representing a delete operation.
 
   The format is:
   - 16-bit key size
@@ -141,16 +141,16 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
 
   ## Parameters
 
-    - `line`: The binary data after the timestamp and atom.
+    - `entry`: The binary data after the timestamp and atom.
 
   ## Returns
 
     - `{:ok, {:d, key}}`
   """
-  def parse_delete_line(line) do
+  def parse_delete_entry(entry) do
     key_bitsize = Encoding.key_bitsize()
 
-    <<int_key_size::big-unsigned-integer-size(key_bitsize), rest::binary>> = line
+    <<int_key_size::big-unsigned-integer-size(key_bitsize), rest::binary>> = entry
 
     <<bin_key::binary-size(int_key_size), _rest::binary>> = rest
 
@@ -294,15 +294,15 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     end
   end
 
-  # -------------------- Reading Log Lines -------------------
+  # -------------------- Reading log entrys -------------------
 
-  # .................... Read Entire Line ....................
+  # .................... Read Entire entry ....................
 
   @doc """
-  Reads a full log line from the given file descriptor and parses it based on
-  the line kind.
+  Reads a full log entry from the given file descriptor and parses it based on
+  the entry kind.
 
-  The line is expected to start with a timestamp and an atom tag indicating
+  The entry is expected to start with a timestamp and an atom tag indicating
   whether it's a write (`:w`) or delete (`:d`) operation, followed by the
   appropriate data.
 
@@ -314,19 +314,19 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
 
     - `{:ok, {kind, key, value}}` for write operations.
     - `{:ok, {kind, key}}` for delete operations.
-    - `{:error, {:no_line_kind, atom}}` for unrecognized line types.
+    - `{:error, {:no_entry_kind, atom}}` for unrecognized entry types.
     - `:eof` or `{:error, reason}` on read failure.
   """
-  def read_log_line(fd) do
+  def read_log_entry(fd) do
     _timestamp = read_timestamp(fd)
-    line_kind = read_atom(fd)
+    entry_kind = read_atom(fd)
     atom_write = Encoding.atom_write()
     atom_delete = Encoding.atom_delete()
 
-    case line_kind do
-      {:ok, ^atom_write} -> read_write_line(fd)
-      {:ok, ^atom_delete} -> read_delete_line(fd)
-      {:ok, atom} -> {:error, {:no_line_kind, atom}}
+    case entry_kind do
+      {:ok, ^atom_write} -> read_write_entry(fd)
+      {:ok, ^atom_delete} -> read_delete_entry(fd)
+      {:ok, atom} -> {:error, {:no_entry_kind, atom}}
       other -> other
     end
   end
@@ -346,7 +346,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     - `{:ok, {:w, key, value}}` on success.
     - `:eof` or `{:error, reason}` on failure.
   """
-  def read_write_line(fd) do
+  def read_write_entry(fd) do
     with {:ok, key_size} <- read_big_unsigned_integer(fd, Encoding.key_bitsize()),
          {:ok, value_size} = read_big_unsigned_integer(fd, Encoding.value_bitsize()),
          {:ok, key} <-
@@ -373,7 +373,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     - `{:ok, {:d, key}}` on success.
     - `:eof` or `{:error, reason}` on failure.
   """
-  def read_delete_line(fd) do
+  def read_delete_entry(fd) do
     with {:ok, key_size} <- read_big_unsigned_integer(fd, Encoding.key_bitsize()),
          {:ok, key} <-
            binread_then_map(fd, key_size, &binary_to_term/1) do
@@ -388,7 +388,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   @doc """
   Loads key-to-offset mappings from a log file.
 
-  Starts scanning from the beginning of the file, reading each log line and
+  Starts scanning from the beginning of the file, reading each log entry and
   calculating the offset to the value (for `:w`) or marking it deleted
   (for `:d`).
 
@@ -408,8 +408,8 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     :file.position(fd, current_offset)
 
     with {:ok, _timestamp} <- read_timestamp(fd),
-         {:ok, line_kind} <- read_atom(fd),
-         {:ok, {key, key_size, value_size}} <- load_offsets_line(fd, line_kind) do
+         {:ok, entry_kind} <- read_atom(fd),
+         {:ok, {key, key_size, value_size}} <- load_offsets_entry(fd, entry_kind) do
       relative_offset_to_value =
         case value_size do
           nil ->
@@ -439,19 +439,19 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     end
   end
 
-  def load_offsets_line(fd, line_kind) do
+  def load_offsets_entry(fd, entry_kind) do
     atom_write = Encoding.atom_write()
     atom_delete = Encoding.atom_delete()
 
-    case line_kind do
-      ^atom_write -> load_offsets_write_line(fd)
-      ^atom_delete -> load_offsets_delete_line(fd)
+    case entry_kind do
+      ^atom_write -> load_offsets_write_entry(fd)
+      ^atom_delete -> load_offsets_delete_entry(fd)
       atom when is_atom(atom) -> {:error, {:no_lin_kind, atom}}
       other -> other
     end
   end
 
-  def load_offsets_write_line(fd) do
+  def load_offsets_write_entry(fd) do
     with {:ok, key_size} <- read_big_unsigned_integer(fd, Encoding.key_bitsize()),
          {:ok, value_size} <- read_big_unsigned_integer(fd, Encoding.value_bitsize()) do
       binread_then_map(fd, key_size, fn key_bin ->
@@ -461,7 +461,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
     end
   end
 
-  def load_offsets_delete_line(fd) do
+  def load_offsets_delete_entry(fd) do
     key_size = read_big_unsigned_integer(fd, Encoding.key_bitsize())
 
     binread_then_map(fd, key_size, fn key_bin ->
@@ -475,7 +475,7 @@ defmodule Matryoshka.Impl.LogStore.Deserialize do
   @doc """
   Builds an index of key-to-value offsets from a log file.
 
-  Opens the log file at the given `log_filepath`, reads each line,
+  Opens the log file at the given `log_filepath`, reads each entry,
   and returns a map from keys to `{value_offset, value_size}` tuples.
 
   This index can be used for efficient key lookup without scanning the entire file.

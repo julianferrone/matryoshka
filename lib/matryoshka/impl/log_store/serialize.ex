@@ -22,19 +22,19 @@ defmodule Matryoshka.Impl.LogStore.Serialize do
   # ----------------------- Formatting -----------------------
 
   @doc """
-  Formats a key-value pair as a binary log line representing a write operation.
+  Formats a key-value pair as a binary log entry representing a write operation.
 
-  Returns a tuple `{line_binary, relative_offset_to_value, value_size}`, where:
-    - `line_binary` is the binary log line with a prepended timestamp.
+  Returns a tuple `{entry_binary, relative_offset_to_value, value_size}`, where:
+    - `entry_binary` is the binary log entry with a prepended timestamp.
     - `relative_offset_to_value` is the number of bytes from the start of the
-       line to the start of the value.
+       entry to the start of the value.
     - `value_size` is the size of the value in bytes.
   """
-  def format_write_log_line(key, value) do
+  def format_write_log_entry(key, value) do
     {key_size, key_size_data, key} = pack_key(key)
     {value_size, value_size_data, value} = pack_value(value)
 
-    line =
+    entry =
       Enum.join([
         Encoding.atom_write_binary(),
         key_size_data,
@@ -43,36 +43,36 @@ defmodule Matryoshka.Impl.LogStore.Serialize do
         value
       ])
 
-    line_size = Encoding.write_entry_pre_value_size(key_size)
+    entry_size = Encoding.write_entry_pre_value_size(key_size)
 
-    {prepend_timestamp(line), line_size, value_size}
+    {prepend_timestamp(entry), entry_size, value_size}
   end
 
   @doc """
-  Formats a key as a binary log line representing a delete operation.
+  Formats a key as a binary log entry representing a delete operation.
 
-  Returns a tuple `{line_binary, relative_offset_to_value, nil}`, where:
-    - `line_binary` is the binary log line with a prepended timestamp.
+  Returns a tuple `{entry_binary, relative_offset_to_value, nil}`, where:
+    - `entry_binary` is the binary log entry with a prepended timestamp.
     - `relative_offset_to_value` is the number of bytes from the start of the
-      line to the (deleted) value position.
+      entry to the (deleted) value position.
     - The third element is `nil`, indicating the value is deleted.
   """
-  def format_delete_log_line(key) do
+  def format_delete_log_entry(key) do
     {key_size, key_size_data, key} = pack_key(key)
 
-    line =
+    entry =
       Enum.join([
         Encoding.atom_delete_binary(),
         key_size_data,
         key
       ])
 
-    line_size = Encoding.delete_entry_size(key_size)
+    entry_size = Encoding.delete_entry_size(key_size)
 
-    # Tuple in the form of the line, the relative offset of the value in the file,
+    # Tuple in the form of the entry, the relative offset of the value in the file,
     # and the value size. Because we deleted the value, we can just
     # notice that there's 0 bytes to read and say that this value was deleted
-    {prepend_timestamp(line), line_size, nil}
+    {prepend_timestamp(entry), entry_size, nil}
   end
 
   @doc """
@@ -129,36 +129,36 @@ defmodule Matryoshka.Impl.LogStore.Serialize do
   # ------------------- Writing to Log File ------------------
 
   @doc """
-  Appends a formatted write log line to the file descriptor.
+  Appends a formatted write log entry to the file descriptor.
 
-  Formats the given `key` and `value` into a write log line and writes it to
+  Formats the given `key` and `value` into a write log entry and writes it to
   the file descriptor `fd`.
 
   Returns a tuple `{relative_offset, value_size}` where:
-    - `relative_offset` is the offset from the start of the log line to the
+    - `relative_offset` is the offset from the start of the log entry to the
       value.
     - `value_size` is the size of the value in bytes.
   """
-  def append_write_log_line(fd, key, value) do
-    {line, relative_offset, value_size} = format_write_log_line(key, value)
-    IO.binwrite(fd, line)
+  def append_write_log_entry(fd, key, value) do
+    {entry, relative_offset, value_size} = format_write_log_entry(key, value)
+    IO.binwrite(fd, entry)
     {relative_offset, value_size}
   end
 
   @doc """
-  Appends a formatted delete log line to the file descriptor.
+  Appends a formatted delete log entry to the file descriptor.
 
-  Formats the given `key` into a delete log line and writes it to the file
+  Formats the given `key` into a delete log entry and writes it to the file
   descriptor `fd`.
 
   Returns a tuple `{relative_offset, value_size}` where:
-    - `relative_offset` is the offset from the start of the log line to the
+    - `relative_offset` is the offset from the start of the log entry to the
       (deleted) value position.
     - `value_size` is `nil` because the value is deleted.
   """
-  def append_delete_log_line(fd, key) do
-    {line, relative_offset, value_size} = format_delete_log_line(key)
-    IO.binwrite(fd, line)
+  def append_delete_log_entry(fd, key) do
+    {entry, relative_offset, value_size} = format_delete_log_entry(key)
+    IO.binwrite(fd, entry)
     {relative_offset, value_size}
   end
 end
