@@ -98,32 +98,32 @@ defmodule Matryoshka do
 
   @doc """
   Creates a `CachingStore` from a `main_store` (source of truth) and a
-  `fast_store` (cache).
+  `cache_store` (cache).
 
-  The `CachingStore` first attempts to read from `fast_store` for faster
+  The `CachingStore` first attempts to read from `cache_store` for faster
   access, falling back to `main_store` if necessary. On successful reads
-  from `main_store`, the value is populated into the `fast_store` to speed
+  from `main_store`, the value is populated into the `cache_store` to speed
   up future access.
 
   ## Parameters
 
     * `main_store` - The primary store holding the authoritative data.
       Must implement the `Matryoshka.Storage` protocol.
-    * `fast_store` - A secondary, faster-access store used for caching
+    * `cache_store` - A secondary, faster-access store used for caching
       lookups. Must also implement the `Matryoshka.Storage`
       protocol.
 
   ## Returns
 
   A `CachingStore` struct that wraps both the `main_store` and the
-  `fast_store`.
+  `cache_store`.
 
   ## Raises
 
-  Raises an error if either `main_store` or `fast_store` does not implement
+  Raises an error if either `main_store` or `cache_store` does not implement
   the required Storage protocol.
   """
-  defdelegate caching_store(main_store, fast_store), to: CachingStore
+  defdelegate caching_store(main_store, cache_store), to: CachingStore
 
   @doc """
   Creates a new `%FilesystemStore{}` rooted at the given directory.
