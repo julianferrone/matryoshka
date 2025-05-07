@@ -60,7 +60,6 @@ defmodule MatryoshkaTest.Impl.LogStoreTest do
     end
 
     store = LogStore.log_store(log_filepath)
-    dbg(store)
     {_store, value} = Storage.get(store, "key")
     assert value == :value
   end
