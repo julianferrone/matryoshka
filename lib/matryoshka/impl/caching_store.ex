@@ -30,8 +30,8 @@ defmodule Matryoshka.Impl.CachingStore do
   alias __MODULE__
 
   defimpl Storage do
-    def fetch(%CachingStore{main_store: main_store, fast_store: fast_store} = store, ref) do
-      {fast_store_new, val_fast} = Storage.fetch(fast_store, ref)
+    def fetch(store, ref) do
+      {fast_store_new, val_fast} = Storage.fetch(store.fast_store, ref)
 
       case val_fast do
         {:ok, _value} ->
@@ -39,7 +39,7 @@ defmodule Matryoshka.Impl.CachingStore do
           {new_store, val_fast}
 
         {:error, _reason_fast} ->
-          {main_store_new, val_main} = Storage.fetch(main_store, ref)
+          {main_store_new, val_main} = Storage.fetch(store.main_store, ref)
 
           case val_main do
             {:ok, value} ->
@@ -53,12 +53,12 @@ defmodule Matryoshka.Impl.CachingStore do
       end
     end
 
-    def get(%CachingStore{main_store: main_store, fast_store: fast_store} = store, ref) do
-      {fast_store_new, val_fast} = Storage.get(fast_store, ref)
+    def get(store, ref) do
+      {fast_store_new, val_fast} = Storage.get(store.fast_store, ref)
 
       case val_fast do
         nil ->
-          {main_store_new, val_main} = Storage.get(main_store, ref)
+          {main_store_new, val_main} = Storage.get(store.main_store, ref)
 
           case val_main do
             nil ->
@@ -77,15 +77,15 @@ defmodule Matryoshka.Impl.CachingStore do
       end
     end
 
-    def put(%CachingStore{main_store: main_store, fast_store: fast_store}, ref, value) do
-      main_store = Storage.put(main_store, ref, value)
-      fast_store = Storage.put(fast_store, ref, value)
+    def put(store, ref, value) do
+      main_store = Storage.put(store.main_store, ref, value)
+      fast_store = Storage.put(store.fast_store, ref, value)
       CachingStore.caching_store(main_store, fast_store)
     end
 
-    def delete(%CachingStore{main_store: main_store, fast_store: fast_store}, ref) do
-      main_store = Storage.delete(main_store, ref)
-      fast_store = Storage.delete(fast_store, ref)
+    def delete(store, ref) do
+      main_store = Storage.delete(store.main_store, ref)
+      fast_store = Storage.delete(store.fast_store, ref)
       CachingStore.caching_store(main_store, fast_store)
     end
   end
