@@ -24,16 +24,21 @@ be interacted with using the functions `get`, `put`, `fetch`, and `delete`.
 - `delete(path)` deletes the `value` in the store at the given `path`
 
 ```elixir
+alias Matryoshka
 # Composing stores together
-{:ok, client} = 
-  map_store()
-  |> logging_store()
+{:ok, store} = 
+  Matryoshka.map_store()
+  |> Matryoshka.logging_store()
   # Initializing storage server
   |> Matryoshka.start_link()
 
-put("one", :item)
-get("one")
-#=> :item
+Matryoshka.put(store, "key", :value)
+#=> :ok
+#=> 10:20:30.000 [info] [request: :put, ref: "key", value: :value]
+
+Matryoshka.get(store, "key")
+#=> 10:20:35.000 [info] [request: :get, ref: "key", value: :value]
+#=> :value
 ```
 
 ## Implementation of Storage Protocol
