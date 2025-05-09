@@ -13,6 +13,10 @@ defmodule Matryoshka do
   # Client to interact with store
   alias Matryoshka.Client
 
+  # _________________________ Client _________________________
+
+  # --------------------- Starting Server --------------------
+
   @doc """
   Starts the storage server from a provided store.
 
@@ -24,6 +28,8 @@ defmodule Matryoshka do
 
   @doc """
   Gets a value from the storage server from the provided `ref`.
+
+  # -------------------- Storage Requests --------------------
 
   ## Examples
 
@@ -77,6 +83,8 @@ defmodule Matryoshka do
       {:error, {:no_ref, "item"}}
   """
   defdelegate delete(pid, ref), to: Client
+
+  # _________________________ Stores _________________________
 
   @doc """
   Creates a `CachingStore` backed by a `MapStore` as the fast cache.
