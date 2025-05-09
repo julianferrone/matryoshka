@@ -58,7 +58,13 @@ defmodule Matryoshka.Impl.LogStore do
       value =
         with {:index, {:ok, {offset, size}}} when not is_nil(size) <-
                {:index, Map.fetch(store.index, ref)},
-             {:store, {:ok, value}} <- {:store, Deserialize.get_value(store.reader, offset, size)} do
+             {:store, {:ok, value}} <-
+               {:store,
+                Deserialize.get_value(
+                  store.reader,
+                  offset,
+                  size
+                )} do
           value
         else
           {:index, :error} -> {:error, {:no_ref, ref}}
@@ -72,8 +78,10 @@ defmodule Matryoshka.Impl.LogStore do
 
     def get(store, ref) do
       value =
-        with {:ok, {offset, size}} when not is_nil(size) <- Map.fetch(store.index, ref),
-             {:ok, value} <- Deserialize.get_value(store.reader, offset, size) do
+        with {:ok, {offset, size}} when not is_nil(size) <-
+               Map.fetch(store.index, ref),
+             {:ok, value} <-
+               Deserialize.get_value(store.reader, offset, size) do
           value
         else
           _ -> nil
