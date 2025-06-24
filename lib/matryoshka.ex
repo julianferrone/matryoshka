@@ -26,7 +26,7 @@ defmodule Matryoshka do
   """
   defdelegate start_link(store, options \\ []), to: Client
 
-# -------------------- Storage Requests --------------------
+  # -------------------- Storage Requests --------------------
 
   @doc """
   Gets a value from the storage server from the provided `ref`.
