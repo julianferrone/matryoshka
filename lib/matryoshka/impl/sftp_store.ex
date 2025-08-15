@@ -43,6 +43,9 @@ defmodule Matryoshka.Impl.SftpStore do
 
   alias __MODULE__
 
+  @doc """
+  Returns the list of paths to parent directories of the path segments.
+  """
   def parent_dirs(path_segments) do
     # This function lets us pull all the parents from a path reference, so that
     # we can make them in the underlying SFTP directory.
