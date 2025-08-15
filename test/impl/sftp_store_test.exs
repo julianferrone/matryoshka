@@ -108,7 +108,8 @@ defmodule MatryoshkaTest.SftpStoreTest do
     assert store == new_store
   end
 
-  test "Putting an item with a compound reference into a SftpStore, then getting it, returns the same value", %{store: store} do
+  test "Putting an item with a compound reference into a SftpStore, then getting it, returns the same value",
+       %{store: store} do
     store = Storage.put(store, "foo/bar/baz", :qux)
     {_store, value} = Storage.fetch(store, "foo/bar/baz")
 
