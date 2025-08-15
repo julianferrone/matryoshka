@@ -62,7 +62,6 @@ defmodule Matryoshka do
   ## Examples
 
       iex> {:ok, pid} = map_store() |> start_link()
-      iex> {:ok, pid} = map_store() |> start_link()
       iex> put(pid, "item", :item)
       iex> fetch(pid, "item")
       {:ok, :item}
