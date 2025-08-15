@@ -3,14 +3,15 @@ defmodule Matryoshka.Impl.SftpStore do
   defstruct [:pid, :connection]
 
   @type t :: %__MODULE__{
-          pid: pid()
+          pid: pid(),
+          connection: :ssh.connection_ref()
         }
 
   def sftp_store(host, username, password) do
-    host = String.to_charlist(host)
     username = String.to_charlist(username)
     password = String.to_charlist(password)
 
+    :ssh.start()
     {:ok, pid, connection} = :ssh_sftp.start_channel(
       host,
       [
@@ -20,8 +21,6 @@ defmodule Matryoshka.Impl.SftpStore do
     )
     %__MODULE__{pid: pid, connection: connection}
   end
-
-  alias __MODULE__
 
   defimpl Matryoshka.Storage do
     def fetch(store, ref) do
@@ -34,7 +33,7 @@ defmodule Matryoshka.Impl.SftpStore do
       ref = String.to_charlist(ref)
       value = case :ssh_sftp.read_file(store.pid, ref) do
         {:ok, value} -> {:ok, value}
-        {:error, reason} -> :nil
+        {:error, _reason} -> :nil
       end
       {store, value}
     end
