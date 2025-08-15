@@ -108,13 +108,10 @@ defmodule MatryoshkaTest.SftpStoreTest do
     assert store == new_store
   end
 
-  test "Adding an item to an empty SftpStore, then deleting it immediately, returns the empty SftpStore",
-       %{store: store} do
-    # Act
-    store_one = Storage.put(store, "item", :item)
-    store_two = Storage.delete(store_one, "item")
+  test "Putting an item with a compound reference into a SftpStore, then getting it, returns the same value", %{store: store} do
+    store = Storage.put(store, "foo/bar/baz", :qux)
+    {_store, value} = Storage.fetch(store, "foo/bar/baz")
 
-    # Assert
-    assert store == store_two
+    assert value == {:ok, :qux}
   end
 end
