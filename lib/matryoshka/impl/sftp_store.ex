@@ -1,4 +1,5 @@
 defmodule Matryoshka.Impl.SftpStore do
+  alias Matryoshka.Reference
   @enforce_keys [:pid, :connection]
   defstruct [:pid, :connection]
 
@@ -17,14 +18,33 @@ defmodule Matryoshka.Impl.SftpStore do
       :ssh_sftp.start_channel(
         host,
         port,
-        [
-          silently_accept_hosts: true,
-          user: username,
-          password: password
-        ]
+        silently_accept_hosts: true,
+        user: username,
+        password: password
       )
 
     %__MODULE__{pid: pid, connection: connection}
+  end
+
+  alias __MODULE__
+
+  def parent_dirs(enumerable) do
+    # This function lets us pull all the parents from a path reference, so that
+    # we can make them in the underlying SFTP directory.
+
+    # We don't want to make the last path segment as a directory, that'll be the
+    # filename.
+    enumerable = Enum.drop(enumerable, -1)
+
+    # We prepend a list to the enumerable so that when we scan, we can accumulate
+    # a list of lists
+    [[] | enumerable]
+    |> Enum.scan(&[&1 | &2])
+    # Then drop the initial empty list
+    |> Enum.drop(1)
+    |> Enum.map(&Enum.reverse/1)
+    # Then recombine them into paths with forward-slash delimiters
+    |> Enum.map(&Enum.join(&1, "/"))
   end
 
   defimpl Matryoshka.Storage do
@@ -55,6 +75,19 @@ defmodule Matryoshka.Impl.SftpStore do
     end
 
     def put(store, ref, value) do
+      # Make sure that parent directories exist
+      segments = Reference.path_segments(ref)
+
+      if length(segments) > 1 do
+        dirs = SftpStore.parent_dirs(segments)
+
+        Enum.each(
+          dirs,
+          fn dir -> :ssh_sftp.make_dir(store.pid, dir) end
+        )
+      end
+
+      # Write value
       :ssh_sftp.write_file(
         store.pid,
         String.to_charlist(ref),
