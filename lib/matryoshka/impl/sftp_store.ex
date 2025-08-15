@@ -8,6 +8,21 @@ defmodule Matryoshka.Impl.SftpStore do
           connection: :ssh.connection_ref()
         }
 
+  @doc """
+  Creates a store backed by an SSH FTP (SFTP) client.
+
+  ## Parameters
+
+    * `host` - The hostname of the SFTP server.
+    * `port` - The port of the SFTP server.
+    * `username` - The username to log in to the SFTP server with.
+    * `password` - The password to log in to the SFTP server with.
+
+  Returns a `%SftpStore` struct containing the following:
+    - `pid`: The PID for communicating with the SFTP server.
+    - `connection`: An opaque data type representing the connection between the
+        SFTP client and the SFTP server.
+  """
   def sftp_store(host, port, username, password) do
     username = String.to_charlist(username)
     password = String.to_charlist(password)
