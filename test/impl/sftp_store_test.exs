@@ -5,18 +5,17 @@ defmodule MatryoshkaTest.SftpStoreTest do
   use ExUnit.Case, async: true
   doctest SftpStore
 
-  @moduletag :tmp_dir
-
-  @port 22
-
+  # When the port is zero, the ssh daemon picks a random free port
+  @random_port 0
   @user "user"
   @password "password"
 
-  setup do
-    # Generate ephemeral RSA key for host
-    rsa_key = :public_key.generate_key({:rsa, 2048, 65_537})
+  @moduletag :tmp_dir
 
+  setup context do
     # Set up SFTP server options
+
+    # Where the public keys are saved
     {:ok, cwd} = File.cwd()
 
     system_dir =
@@ -30,19 +29,28 @@ defmodule MatryoshkaTest.SftpStoreTest do
 
     user = String.to_charlist(@user)
     password = String.to_charlist(@password)
+    root = String.to_charlist(context.tmp_dir)
 
     options = [
-      # silently_accept_hosts: true,
       system_dir: system_dir,
-      user_passwords: [{user, password}]
+      user_passwords: [
+        {user, password}
+      ],
+      subsystems: [
+        :ssh_sftpd.subsystem_spec(root: root)
+      ]
     ]
 
     # Start SFTP server
     :ssh.start()
-    {:ok, server_ref} = :ssh.daemon(:loopback, @port, options)
+    {:ok, server_ref} = :ssh.daemon(:loopback, @random_port, options)
+    {:ok, daemon_info} = :ssh.daemon_info(server_ref)
+    ip = Keyword.get(daemon_info, :ip)
+    port = Keyword.get(daemon_info, :port)
+    {:ok, ip, port}
 
     # Start SftpStore (SFTP Client)
-    sftp_store = SftpStore.sftp_store(:loopback, @user, @password)
+    sftp_store = SftpStore.sftp_store(ip, port, @user, @password)
 
     # Close SFTP server when test is done
     on_exit(fn ->
@@ -68,7 +76,7 @@ defmodule MatryoshkaTest.SftpStoreTest do
     assert store == new_store
   end
 
-  test "Fetch on empty SftpStore returns nil", %{store: store} do
+  test "Fetch on empty SftpStore returns no_ref error", %{store: store} do
     # Act
     {_new_store, value} = Storage.fetch(store, "item")
 
