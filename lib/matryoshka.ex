@@ -8,6 +8,7 @@ defmodule Matryoshka do
   alias Matryoshka.Impl.MappingStore
   alias Matryoshka.Impl.PassThrough
   alias Matryoshka.Impl.PersistentStore
+  alias Matryoshka.Impl.SftpStore
   alias Matryoshka.Impl.SwitchingStore
 
   # Client to interact with store
@@ -61,7 +62,6 @@ defmodule Matryoshka do
 
   ## Examples
 
-      iex> {:ok, pid} = map_store() |> start_link()
       iex> {:ok, pid} = map_store() |> start_link()
       iex> put(pid, "item", :item)
       iex> fetch(pid, "item")
@@ -270,6 +270,23 @@ defmodule Matryoshka do
   writing, and indexing of log data.
   """
   defdelegate persistent_store(log_filepath), to: PersistentStore
+
+  @doc """
+  Creates a store backed by an SSH FTP (SFTP) client.
+
+  ## Parameters
+
+    * `host` - The hostname of the SFTP server.
+    * `port` - The port of the SFTP server.
+    * `username` - The username to log in to the SFTP server with.
+    * `password` - The password to log in to the SFTP server with.
+
+  Returns a `%SftpStore` struct containing the following:
+    - `pid`: The PID for communicating with the SFTP server.
+    - `connection`: An opaque data type representing the connection between the
+        SFTP client and the SFTP server.
+  """
+  defdelegate sftp_store(host, port, username, password), to: SftpStore
 
   @doc """
   Creates a `SwitchingStore` that routes `fetch`, `get`, `put`, and `delete`
