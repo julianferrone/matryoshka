@@ -45,6 +45,15 @@ defmodule Matryoshka.Impl.SftpStore do
 
   @doc """
   Returns the list of paths to parent directories of the path segments.
+
+  ## Examples:
+
+      iex> alias Matryoshka.Impl.SftpStore
+      iex> alias Matryoshka.Reference
+      iex> ref = "foo/bar/baz"
+      iex> segments = Reference.path_segments(ref)
+      iex> SftpStore.parent_dirs(segments)
+      ["foo", "foo/bar"]
   """
   def parent_dirs(path_segments) do
     # This function lets us pull all the parents from a path reference, so that
