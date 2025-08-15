@@ -43,17 +43,17 @@ defmodule Matryoshka.Impl.SftpStore do
 
   alias __MODULE__
 
-  def parent_dirs(enumerable) do
+  def parent_dirs(path_segments) do
     # This function lets us pull all the parents from a path reference, so that
     # we can make them in the underlying SFTP directory.
 
     # We don't want to make the last path segment as a directory, that'll be the
     # filename.
-    enumerable = Enum.drop(enumerable, -1)
+    path_segments = Enum.drop(path_segments, -1)
 
-    # We prepend a list to the enumerable so that when we scan, we can accumulate
+    # We prepend a list to the path_segments so that when we scan, we can accumulate
     # a list of lists
-    [[] | enumerable]
+    [[] | path_segments]
     |> Enum.scan(&[&1 | &2])
     # Then drop the initial empty list
     |> Enum.drop(1)
