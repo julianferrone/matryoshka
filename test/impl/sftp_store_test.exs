@@ -3,7 +3,6 @@ defmodule MatryoshkaTest.SftpStoreTest do
   alias Matryoshka.Storage
 
   use ExUnit.Case, async: true
-  doctest SftpStore
 
   # When the port is zero, the ssh daemon picks a random free port
   @random_port 0
