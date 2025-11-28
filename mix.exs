@@ -33,11 +33,7 @@ defmodule Matryoshka.MixProject do
 
   defp description() do
     "Matryoshka provides composable storage functionality through stores and
-    storage combinators. Any module that implements the Storage protocol (get,
-    fetch, put, delete) is a store. Some stores compute their storage call
-    results on top of other stores. These are known as storage combinators.
-    Complex storage requirements can thus be met by composing together many
-    storage combinators into one store."
+    storage combinators."
   end
 
   defp package() do
