@@ -2,8 +2,9 @@ defmodule Matryoshka.Impl.SftpStore do
   alias Matryoshka.Reference
   @enforce_keys [:pid, :connection]
   defstruct [:pid, :connection]
+  alias __MODULE__
 
-  @type t :: %__MODULE__{
+  @type t :: %SftpStore{
           pid: pid(),
           connection: :ssh.connection_ref()
         }
@@ -38,10 +39,8 @@ defmodule Matryoshka.Impl.SftpStore do
         password: password
       )
 
-    %__MODULE__{pid: pid, connection: connection}
+    %SftpStore{pid: pid, connection: connection}
   end
-
-  alias __MODULE__
 
   @doc """
   Returns the list of paths to parent directories of the path segments.
@@ -51,24 +50,24 @@ defmodule Matryoshka.Impl.SftpStore do
       iex> alias Matryoshka.Impl.SftpStore
       iex> alias Matryoshka.Reference
       iex> ref = "foo/bar/baz"
-      iex> segments = Reference.path_segments(ref)
-      iex> SftpStore.parent_dirs(segments)
+      iex> Reference.path_segments(ref) |> SftpStore.parent_dirs()
       ["foo", "foo/bar"]
   """
   def parent_dirs(path_segments) do
     # This function lets us pull all the parents from a path reference, so that
     # we can make them in the underlying SFTP directory.
+    {paths, _acc} =
+      path_segments
+      # We don't want to make the last path segment as a directory,
+      # that'll be the filename.
+      |> Enum.drop(-1)
+      |> Enum.map_reduce(
+        [],
+        fn segment, acc -> {[segment | acc], [segment | acc]} end
+      )
 
-    # We don't want to make the last path segment as a directory, that'll be the
-    # filename.
-    path_segments = Enum.drop(path_segments, -1)
-
-    # We prepend a list to the path_segments so that when we scan, we can accumulate
-    # a list of lists
-    [[] | path_segments]
-    |> Enum.scan(&[&1 | &2])
-    # Then drop the initial empty list
-    |> Enum.drop(1)
+    paths
+    # Reverse the paths
     |> Enum.map(&Enum.reverse/1)
     # Then recombine them into paths with forward-slash delimiters
     |> Enum.map(&Enum.join(&1, "/"))
