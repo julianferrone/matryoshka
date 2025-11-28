@@ -6,8 +6,13 @@ defmodule Matryoshka.MixProject do
       app: :matryoshka,
       version: "0.1.0",
       elixir: "~> 1.15",
+      build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      description: description(),
+      package: package(),
+      deps: deps(),
+      name: "Matryoshka",
+      source_url: "https://github.com/julianferrone/matryoshka"
     ]
   end
 
