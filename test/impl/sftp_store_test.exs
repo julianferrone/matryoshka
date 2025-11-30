@@ -46,7 +46,6 @@ defmodule MatryoshkaTest.SftpStoreTest do
     {:ok, daemon_info} = :ssh.daemon_info(server_ref)
     ip = Keyword.get(daemon_info, :ip)
     port = Keyword.get(daemon_info, :port)
-    {:ok, ip, port}
 
     # Start SftpStore (SFTP Client)
     sftp_store = SftpStore.sftp_store(ip, port, @user, @password)
