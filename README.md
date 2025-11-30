@@ -58,17 +58,7 @@ The business logic of different stores and store combinators is found under /lib
 | SftpStore | `sftp_store/4` | Reads from, writes to, and deletes files on an external SFTP server to respond to storage calls. | ❌ | N/A |
 | SwitchingStore | `switching_store/1` | Directs all storage calls to inner stores depending on the first path segment of the `path` | ✅ | Takes a Map of strings to underlying stores |
 
-Of these, PassThrough is useless, and is provided only to compare with the PassThrough store in (Weiher & Hirschfeld, 2019).
-
-## To-Do
-
-- [x] Add FilesystemStore as file-system based storage
-- [ ] Add JsonStore and XmlStore as specialisations of MappingStore
-- [ ] Add patch functionality
-  - This will probably only be allowed for certain values like JSON or XML, using RFC 6902 JSON Patch and RFC 5261 XML Patch Operations 
-- [x] Add persistent key-value storage in LogStore
-  - using an append-only log approach
-- [ ] Add a store that stores values in either a persistent KV store or as files depending on the size of the value
+Of these, PassThrough does nothing, and is provided only to compare with the PassThrough store in (Weiher & Hirschfeld, 2019).
 
 ## References
 
